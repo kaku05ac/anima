@@ -76,6 +76,24 @@
     font-variant-numeric: tabular-nums;
   }
   .year small { display: block; font-size: 0.26em; font-weight: 500; font-style: normal; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,.9); margin-top: 4px; }
+  /* index strip at the bottom: hairline rules, a header row and the entry in focus */
+  .index { position: absolute; z-index: 3; color: #fff; pointer-events: none;
+    font-family: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; font-weight: 300;
+    font-size: calc(clamp(9px, 0.71vw, 11.25px) - 1px); line-height: 1.2; }
+  /* one column grid for the whole strip; both rows use it (subgrid), so columns always line up */
+  .index { display: grid; grid-template-columns: 4.5em minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 2.2fr) 13em; column-gap: 2em; }
+  .ix-row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid;
+    align-items: baseline; padding: 0.55em 0; border-top: 1px solid rgba(255, 255, 255, 0.4); }
+  @supports not (grid-template-columns: subgrid) {
+    .ix-row { grid-template-columns: 4.5em minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 2.2fr) 13em; column-gap: 2em; }
+  }
+  .ix-row:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.4); }
+  .ix-row > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ix-row > span:last-child { text-align: right; }
+  .ix-head { opacity: 0.72; }
+  .ix-row .tag { color: #f3e39a; margin-left: 0.7em; }
+  #ixRow { transition: opacity .14s ease-out; }
+  #ixRow.fading { opacity: 0; }
   .brand { position: absolute; color: #fff; pointer-events: none; white-space: nowrap;
     font-family: "Geist Pixel Line", "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
     font-size: calc(clamp(15px, 1.25vw, 20px) - 8px); font-weight: 400; line-height: 1; letter-spacing: 0.01em; }
@@ -276,6 +294,10 @@
   <svg class="art" id="art" aria-hidden="true"></svg>
   <div class="startline" id="startline"></div>
   <div class="brand" id="brand">anima</div>
+  <div class="index" id="index" aria-live="polite">
+    <div class="ix-row ix-head"><span>Nr</span><span>Postać / dokument</span><span>Ścieżka</span><span>Teza</span><span>Czas</span></div>
+    <div class="ix-row" id="ixRow"></div>
+  </div>
   <div class="years"><div class="year" id="yA"></div><div class="year" id="yB"></div></div>
   <div id="cats"></div>
   <div class="markers" id="markers"></div>
@@ -542,6 +564,11 @@
     var brand = document.getElementById('brand'), sv = document.querySelector('.scene').getBoundingClientRect();
     brand.style.left = (sv.left + 0.2 * sv.width + 2) + 'px';   // starts just right of the soul   // ends just left of the soul
     brand.style.top = (sv.top + 0.612 * sv.height - brand.offsetHeight / 2 + 1) + 'px';
+    // index strip across the bottom, from the title column to the right margin
+    var ix = document.getElementById('index');
+    ix.style.display = G.narrow ? 'none' : '';
+    ix.style.left = G.nav.x + 'px'; ix.style.width = G.nav.w + 'px';   // same start and end as the slider
+    ix.style.top = (G.H - ix.offsetHeight - Math.max(20, G.H * 0.025)) + 'px';
     // featured block shares its left edge with the starting point
     var feat = document.getElementById('feature');
     if (feat) feat.style.left = G.narrow ? '' : (G.ox - 3) + 'px';
@@ -735,6 +762,21 @@
 
   // highlight one entry: its strand lights up, its dot grows, its label shows
   var current = null, userHover = false;
+  // the index row shows whichever entry is in focus (hovered, auto-highlighted or featured)
+  var ixLast = null;
+  function setIndex(d) {
+    if (!d || d === ixLast) return; ixLast = d;
+    var row = document.getElementById('ixRow'), t = trackOf(d.path);
+    var feat = typeof FEATURED !== 'undefined' && FEATURED.some(function (f) { return f.d === d; });
+    function fill() {
+      row.innerHTML = '<span>' + String(d.id + 1).padStart(3, '0') + '</span><span></span><span></span><span></span><span></span>';
+      var s = row.children;
+      s[1].textContent = d.name;
+      if (feat) { var tg = document.createElement('span'); tg.className = 'tag'; tg.textContent = 'wyróżnione'; s[1].appendChild(tg); }
+      s[2].textContent = t.name; s[3].textContent = d.text; s[4].textContent = d.d;
+    }
+    fill();   // swap in place: no fade, nothing moves
+  }
   function focusEntry(d) {
     if (current != null) {
       if (strandEls[current]) strandEls[current].classList.remove('hl');
@@ -742,7 +784,7 @@
     }
     current = null; hidePill();
     if (!d || !live['e' + d.id]) return;
-    current = d.id;
+    current = d.id; setIndex(d);
     var p = strandEls[d.id]; if (p) { p.classList.add('hl'); G.sg.appendChild(p); }
     live['e' + d.id].classList.add('on');
     showPill(d, live['e' + d.id]);
@@ -943,6 +985,7 @@
       document.getElementById('fDate').textContent = f.d.d;
       document.getElementById('fSub').textContent = t.name + ' · ' + f.d.name;
       document.getElementById('fTitle').textContent = f.head;
+      setIndex(f.d);
     }
     if (animate && !(mq && mq.matches)) { feature.classList.add('fading'); setTimeout(function () { fill(); feature.classList.remove('fading'); }, 120); }
     else fill();
