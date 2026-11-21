@@ -213,7 +213,11 @@
   .feature.fading .swap { transition-duration: .12s; }
   .feature.fading .swap { opacity: 0; }
 
-  .topnav { top: calc(30px + env(safe-area-inset-top, 0px)); left: max(40px, env(safe-area-inset-left, 0px)); text-align: left; display: grid; justify-items: start; gap: 6px; }
+  .topnav { top: calc(30px + env(safe-area-inset-top, 0px)); left: max(40px, env(safe-area-inset-left, 0px)); text-align: left; display: grid; justify-items: start; gap: 0; }
+  /* same rhythm as the featured title and its "zobacz na osi" link: 1.2 line height, 3px, then the link */
+  .topnav .site { line-height: 1.2; }
+  .topnav nav { margin-top: calc(0.15vw + 2.8px); line-height: normal; }
+  .topnav nav button { padding: 0 !important; }
   .topnav .site { font-family: "Geist Pixel Line", "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 13px; font-weight: 400; letter-spacing: 0; text-transform: none; }
   .topnav nav { display: flex; align-items: center; gap: 10px; font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 10.5px; font-weight: 400; letter-spacing: 0.02em; text-transform: lowercase; }
   .topnav nav button { border: 0; background: none; padding: 2px 0; cursor: pointer; border-bottom: 1px solid transparent; font-weight: 400; text-transform: lowercase; letter-spacing: inherit; }
@@ -222,7 +226,7 @@
   .topnav nav .sep { width: 3px; height: 3px; background: rgba(255,255,255,.8); }
   .paths-menu {
     margin-top: 4px; padding: 10px 12px; border-radius: 0; display: grid; gap: 7px; text-align: left;
-    background: rgba(30, 45, 85, 0.26); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+    background: rgba(40, 60, 110, 0.5); -webkit-backdrop-filter: blur(22px) saturate(1.2); backdrop-filter: blur(22px) saturate(1.2);
     font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 11px; letter-spacing: 0.02em; text-transform: lowercase;
   }
   .paths-menu[hidden] { display: none; }
@@ -248,7 +252,7 @@
   .foot .right button:hover, .foot .right button:focus-visible { opacity: 1; text-decoration: underline; text-underline-offset: 3px; outline: none; }
   .foot .left { opacity: .9; }
   .foot .right[hidden], .foot .left[hidden] { display: none; }
-  .paths-menu { position: absolute; left: 0; bottom: calc(100% + 10px); white-space: nowrap; }
+  .paths-menu { position: absolute; left: 0; top: calc(100% + 10px); bottom: auto; white-space: nowrap; z-index: 6; }
   .hidden-tracks [data-track] { display: none; }
   @media (max-width: 700px) {
     .feature { left: 16px; width: calc(100vw - 32px); top: calc(16px + env(safe-area-inset-top, 0px)); }
@@ -547,7 +551,13 @@
       feat.style.top = Math.max(28, topRib - feat.offsetHeight - 56) + 'px';
       // title and menu sit at the bottom-left, on the same left edge as the point
       var tn = document.querySelector('.topnav');
-      if (tn) { tn.style.left = (G.ox - 3) + 'px'; tn.style.top = 'auto'; tn.style.bottom = 'calc(51px + env(safe-area-inset-bottom, 0px))'; }
+      // title and menu sit above the featured block, on the same left edge
+      if (tn) {
+        tn.style.left = (G.ox - 3) + 'px'; tn.style.bottom = 'auto';
+        var fTop = parseFloat(feat.style.top), gap = 40;
+        if (fTop - tn.offsetHeight - gap < 28) { fTop = 28 + tn.offsetHeight + gap; feat.style.top = fTop + 'px'; }
+        tn.style.top = (fTop - tn.offsetHeight - gap) + 'px';
+      }
     } else if (feat) feat.style.top = '';
     // labels
     var cats = document.getElementById('cats'); cats.innerHTML = '';
