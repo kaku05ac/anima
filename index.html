@@ -76,6 +76,9 @@
     font-variant-numeric: tabular-nums;
   }
   .year small { display: block; font-size: 0.26em; font-weight: 500; font-style: normal; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,.9); margin-top: 4px; }
+  .brand { position: absolute; color: #fff; pointer-events: none; white-space: nowrap;
+    font-family: "Geist Pixel Line", "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    font-size: calc(clamp(15px, 1.25vw, 20px) - 8px); font-weight: 400; line-height: 1; letter-spacing: 0.01em; }
   .startline { position: absolute; width: 1px; background: var(--ink); pointer-events: none; }
 
   .cat {
@@ -268,6 +271,7 @@
 <section class="tl" id="os-czasu" tabindex="0" aria-label="Oś czasu: jak rozumieć duszę. Użyj suwaka albo strzałek, aby przesuwać czas.">
   <svg class="art" id="art" aria-hidden="true"></svg>
   <div class="startline" id="startline"></div>
+  <div class="brand" id="brand">anima</div>
   <div class="years"><div class="year" id="yA"></div><div class="year" id="yB"></div></div>
   <div id="cats"></div>
   <div class="markers" id="markers"></div>
@@ -528,8 +532,12 @@
     el('stop', { offset: 0, 'stop-color': '#ffffff' }, ng);
     el('stop', { offset: 0.55, 'stop-color': '#eef0fa' }, ng);
     el('stop', { offset: 1, 'stop-color': '#e3d9ee' }, ng);
-    G.ns = 8;
-    el('rect', { class: 'soulpoint', x: G.ox - G.ns / 2, y: G.yt - G.ns / 2, width: G.ns, height: G.ns, rx: 1.5, ry: 1.5 }, art);
+    G.ns = 5;
+    el('rect', { class: 'soulpoint', x: G.ox - G.ns / 2, y: G.yt - G.ns / 2, width: G.ns, height: G.ns, rx: 1, ry: 1 }, art);
+    // the name sits beside the purple soul in the painting, vertically centred on it
+    var brand = document.getElementById('brand'), sv = document.querySelector('.scene').getBoundingClientRect();
+    brand.style.left = (sv.left + 0.2 * sv.width + 2) + 'px';   // starts just right of the soul   // ends just left of the soul
+    brand.style.top = (sv.top + 0.612 * sv.height - brand.offsetHeight / 2 + 1) + 'px';
     // featured block shares its left edge with the starting point
     var feat = document.getElementById('feature');
     if (feat) feat.style.left = G.narrow ? '' : (G.ox - 3) + 'px';
