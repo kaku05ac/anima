@@ -1,0 +1,977 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Anima</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,800;1,400&family=Kalam:wght@400;700&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400&display=swap">
+<style>
+  /* Geist Pixel Line (Vercel, SIL Open Font License), embedded */
+  @font-face { font-family: "Geist Pixel Line"; src: url(data:font/woff2;base64,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) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  /* Layout: hero = looping painting (full screen). Below it, an ivory timeline section where
+     three gradient ribbons flow from one origin on the left into long horizontal paths. */
+  :root {
+    --sky: #74a4e0;
+    --ivory: #fff8f5;
+    --ink: #2f2c2a;
+    --ink-soft: #6f6863;
+    --pill: #353433;
+    --f1: #ffc74e; --f2: #ffbf63; --f3: #feb77e;   /* Filozofia: gold to peach */
+    --p1: #f77764; --p2: #fe9242;                  /* Pismo: coral to orange */
+    --m1: #935d99; --m2: #8972b3; --m3: #7c8dd7;   /* Kościół: plum to periwinkle */
+    --nav1: #f6c9cf; --nav2: #fbd9b5; --nav3: #fbf0dc;
+    --font-ui: "Alegreya Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-hand: "Kalam", "Segoe Print", "Comic Sans MS", cursive;
+    color-scheme: light;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { background: var(--sky); height: 100%; }
+  body { margin: 0; color: var(--ink); font-family: var(--font-ui); overflow: hidden; }
+
+  /* ===== Hero: the painting ===== */
+  :root { --scene-scale: 1; --scene-x: 0.5; --scene-y: 0.5; }
+  .hero { position: fixed; inset: 0; overflow: hidden; background: var(--sky); }
+  .hero::before {
+    content: ""; position: absolute; inset: -40px;
+    background: url("images/background-poster.webp") no-repeat center / cover; filter: blur(18px);
+  }
+  .scene {
+    --cover-w: max(100vw, 100vh * 1920 / 1200);
+    position: absolute; width: calc(var(--cover-w) * var(--scene-scale)); aspect-ratio: 1920 / 1200;
+    left: calc((100vw - var(--cover-w) * var(--scene-scale)) * var(--scene-x));
+    top: calc((100vh - var(--cover-w) * var(--scene-scale) * 1200 / 1920) * var(--scene-y));
+    display: block; object-fit: cover;
+  }
+  @media (max-aspect-ratio: 1/1) { :root { --scene-x: 0.1; } }
+  .scroll-cue {
+    position: absolute; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+    width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    color: #fff; background: rgba(30, 30, 50, 0.25); text-decoration: none;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .scroll-cue:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+  /* ===== Timeline ===== */
+  .tl {
+    position: fixed; inset: 0; overflow: hidden;
+    background: transparent; touch-action: pan-y;
+    cursor: default; outline: none;
+  }
+  .tl.dragging { cursor: grabbing; }
+  .tl:focus-visible { box-shadow: inset 0 0 0 2px rgba(255,255,255,.7); }
+  .tl svg.art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* strands: one hairline per entry, from the soul point out to its dot (Giga-style bundles) */
+  .centerline { fill: none; stroke: #fff; stroke-opacity: 0.95; stroke-width: 1.3; }
+  .strand { fill: none; stroke: #fff; stroke-opacity: 0.85; stroke-width: 1.1; transition: stroke-opacity .25s, stroke-width .25s; }
+  .strand.ghost { stroke-opacity: 0.25; }
+  .strand.hl { stroke-opacity: 1; stroke-width: 2.3; }
+  .pulse { fill: none; stroke: #fffaf0; stroke-width: 1.6; stroke-linecap: round; stroke-opacity: 0.95; }
+  .soulpoint { fill: #fff; }
+  .deco circle, .deco line { vector-effect: non-scaling-stroke; }
+
+  .years { position: absolute; left: 0; right: 0; top: 0; pointer-events: none; }
+  .year {
+    position: absolute; top: 0; color: #fff; white-space: nowrap;
+    font-family: "Geist Pixel Line", "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    font-weight: 400; font-style: normal !important; font-size: clamp(15px, 1.2vw, 19px); line-height: 1; letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .year small { display: block; font-size: 0.26em; font-weight: 500; font-style: normal; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,.9); margin-top: 4px; }
+  .startline { position: absolute; width: 1px; background: var(--ink); pointer-events: none; }
+
+  .cat {
+    position: absolute; transform: translateY(-50%); text-align: right; pointer-events: none;
+    font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 12px; font-weight: 400; letter-spacing: 0.02em; text-transform: lowercase; line-height: 1.2; color: #fff; text-shadow: 0 1px 2px rgba(20, 24, 60, 0.7), 0 0 12px rgba(20, 30, 70, 0.5);
+  }
+  .cat em { display: block; font-style: normal; margin-bottom: 3px; }
+  .cat span { display: block; font: inherit; font-size: 9.5px; color: #fff; }
+
+  .markers { position: absolute; inset: 0; pointer-events: none; }
+  .mk {
+    position: absolute; pointer-events: auto; border: 0; padding: 0; cursor: pointer;
+    transform: translate(-50%, -50%); transition: left .32s cubic-bezier(.3, 0, .2, 1);
+    font-family: var(--font-ui); -webkit-tap-highlight-color: transparent;
+  }
+  .tl.dragging .mk { transition: none; }
+  /* markers in the slider style: square, thin, frosted */
+  /* entries: slim vertical ticks across the line, like the slider's ticks */
+  .mk.dot { width: 14px; height: 13px; background: transparent; }
+  .mk.dot::before {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px;
+    border-radius: 1px; background: var(--c, #fff); opacity: 1; transition: width .18s ease, height .18s ease, margin .18s ease, opacity .18s;
+  }
+  .mk.dot:hover::before, .mk.dot:focus-visible::before, .mk.dot.on::before { width: 8px; height: 8px; margin: -4px 0 0 -4px; opacity: 1; border-radius: 2px; }
+  .mk.dot.ping::before { animation: ping .6s ease-out; }
+  @keyframes ping { 40% { width: 8px; height: 8px; margin: -4px 0 0 -4px; opacity: 1; } }
+  .mk.dot:hover, .mk.dot:focus-visible { z-index: 2; }
+  .mk.cluster {
+    min-width: 26px; height: 22px; padding: 0 7px; border-radius: 0;
+    background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 0 0 1px #fff !important;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    color: #fff; font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-weight: 500; font-size: 11px; line-height: 22px;
+    font-variant-numeric: tabular-nums;
+    transition: left .32s cubic-bezier(.3, 0, .2, 1), background .2s, color .2s;
+  }
+  .mk.cluster:hover, .mk.cluster:focus-visible { background: rgba(255, 255, 255, 0.28); color: #fff; }
+  .mk:focus-visible { outline: 1px solid #fff; outline-offset: 3px; border-radius: 0; }
+  .mk.enter { animation: fadein .3s ease-out both; }
+  @keyframes fadein { from { opacity: 0; } }
+
+  /* hover label in the slider style: square, frosted, fine white outline, mono text */
+  .pill {
+    position: absolute; transform: translate(-50%, -100%); pointer-events: none; z-index: 4;
+    display: flex; flex-direction: column; justify-content: center; gap: 2px;
+    padding: 6px 10px; border-radius: 0; color: #fff;
+    background: rgba(30, 45, 85, 0.26); box-shadow: none;
+    -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+    white-space: nowrap; max-width: calc(100vw - 32px);
+    font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    animation: pillin .14s ease-out both;
+  }
+  .pill b { font-size: 11px; font-weight: 400; overflow: hidden; text-overflow: ellipsis; }
+  .pill i { font-size: 10px; font-style: normal; opacity: .95; overflow: hidden; text-overflow: ellipsis; }
+  @keyframes pillin { from { opacity: 0; } }
+
+  .eras { position: absolute; display: flex; pointer-events: none; font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 10px; font-weight: 400; letter-spacing: .02em; text-transform: lowercase; color: rgba(255,255,255,.9); }
+  .eras span { position: absolute; white-space: nowrap; }
+
+  /* slider: square, thin, translucent */
+  .nav { position: absolute; height: 22px; border-radius: 0; cursor: pointer; background: rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35); touch-action: none; }
+  .nav, .nav * { user-select: none; -webkit-user-select: none; }   /* only the slider blocks text selection */
+  .nav .tick { position: absolute; top: 7px; width: 1px; height: 8px; border-radius: 0; background: rgba(255, 255, 255, 0.75); pointer-events: none; }
+  .nav .win { position: absolute; top: 0; bottom: 0; border-radius: 0; background: rgba(255, 255, 255, 0.28); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9); cursor: grab; }
+  .nav .grip {
+    position: absolute; top: 50%; width: 9px; height: 22px; margin: -11px 0 0 -4.5px; border-radius: 0; border: 0; padding: 0;
+    background: #fff; cursor: ew-resize;
+  }
+  .nav .grip::after { content: ""; position: absolute; left: 4px; top: 7px; width: 1px; height: 8px; background: rgba(40, 30, 60, .45); }
+  .nav .grip:focus-visible { outline: 1px solid #fff; outline-offset: 2px; }
+
+  .hint { position: absolute; font-size: 13px; color: #fff; text-shadow: 0 1px 6px rgba(20, 30, 50, 0.8); pointer-events: none; }
+
+  /* Detail panel */
+  .panel {
+    position: fixed; z-index: 10; top: 0; right: 0; bottom: 0; width: min(420px, 100vw);
+    background: var(--ivory); box-shadow: -18px 0 50px rgba(47, 44, 42, 0.18);
+    padding: calc(28px + env(safe-area-inset-top, 0px)) max(28px, env(safe-area-inset-right, 0px)) 28px 28px;
+    display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
+    transform: translateX(105%); transition: transform .35s cubic-bezier(.3, 0, .2, 1); visibility: hidden;
+  }
+  .panel.open { transform: none; visibility: visible; }
+  .panel .close { align-self: flex-end; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(47,44,42,.08); color: var(--ink); font-size: 20px; cursor: pointer; }
+  .panel .close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .panel .band { height: 8px; border-radius: 4px; }
+  .panel .kicker { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+  .panel h2 { margin: 0; font-size: 30px; line-height: 1.1; text-wrap: balance; }
+  .panel .when { font-size: 18px; font-style: italic; color: var(--ink-soft); }
+  .panel p { margin: 4px 0 0; font-size: 18px; line-height: 1.5; max-width: 60ch; }
+  .panel .src { font-size: 14px; color: var(--ink-soft); }
+  .panel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .panel ul button { width: 100%; text-align: left; border: 0; border-radius: 10px; padding: 10px 12px; background: rgba(47,44,42,.06); color: var(--ink); font: inherit; font-size: 16px; cursor: pointer; }
+  .panel ul button:hover, .panel ul button:focus-visible { background: rgba(47,44,42,.12); outline: none; }
+  .panel .qs { list-style: disc; padding-left: 20px; display: block; font-size: 17px; line-height: 1.6; }
+  .panel ul small { display: block; color: var(--ink-soft); font-size: 13px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mk, .pill, .panel, .mk.enter { transition: none !important; animation: none !important; }
+  }
+  /* ===== Text layout (top-left feature, top-right nav, footer) ===== */
+  .chrome { position: fixed; z-index: 5; color: #fff; text-shadow: 0 1px 2px rgba(20, 24, 60, 0.55), 0 0 18px rgba(20, 30, 70, 0.35); }
+  .chrome button, .chrome a { color: inherit; font: inherit; text-shadow: inherit; }
+  .feature {
+    top: calc(28px + env(safe-area-inset-top, 0px)); left: max(40px, env(safe-area-inset-left, 0px));
+    width: min(520px, calc(100vw - 80px)); display: grid; gap: 0;
+  }
+  .feature .bar { display: flex; align-items: center; gap: 6px; font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 12px; font-weight: 400; letter-spacing: 0.02em; text-transform: lowercase; text-shadow: 0 1px 3px rgba(20, 24, 60, 0.35); }
+  .feature .bar .label { display: inline-block; line-height: 1; }
+  .feature .bar .label::before { content: ""; display: inline-block; vertical-align: middle; margin: 0 7px 0 0; width: 6px; height: 6px; background: #ff0000; }
+  .feature .bar button { font-family: inherit; }
+  .feature .bar button { border: 0; background: none; padding: 2px 4px; cursor: pointer; font-size: 12px; line-height: 1; border-radius: 4px; }
+  .feature .bar .label { margin-right: 10px; }
+  .feature .bar button:focus-visible, .feature .go:focus-visible, .topnav button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .feature .count { font-variant-numeric: tabular-nums; text-align: center; }
+  .feature .date { margin-top: 12px; font-family: "Geist Pixel Line", "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: clamp(26px, 2.5vw, 40px); font-weight: 400; line-height: 1; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; }
+  .feature .sub { margin-top: 6px; font-family: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: clamp(12px, 0.9vw, 14px); font-weight: 300; line-height: 1.2; letter-spacing: 0; opacity: 0.9; text-transform: lowercase; }
+  .feature .rule { display: none; }
+  /* no shadows on any text, dots or badges */
+  *, *::before, *::after { text-shadow: none !important; }
+  .mk.dot::before { box-shadow: none !important; }
+  .feature h2 { margin-top: 16px !important; }
+  .feature h2 { margin: 0; font-family: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: clamp(16px, 1.25vw, 19px); font-weight: 300; line-height: 1.2; letter-spacing: -0.01em; text-wrap: balance; }
+  .feature .go {
+    justify-self: start; margin-top: 3px; display: inline-flex; align-items: baseline; gap: 8px; border: 0; background: none; padding: 0; cursor: pointer;
+    font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 11px; font-weight: 400; letter-spacing: 0.02em; text-transform: lowercase;
+    text-shadow: 0 1px 3px rgba(20, 24, 60, 0.35); opacity: 0.9;
+  }
+  .feature .go span { transition: transform .2s; }
+  .feature .go:hover { opacity: 1; }
+  .feature .go:hover span { transform: translateX(3px); }
+  .feature .swap { transition: opacity .14s ease-out; }
+  .feature.fading .swap { transition-duration: .12s; }
+  .feature.fading .swap { opacity: 0; }
+
+  .topnav { top: calc(30px + env(safe-area-inset-top, 0px)); left: max(40px, env(safe-area-inset-left, 0px)); text-align: left; display: grid; justify-items: start; gap: 6px; }
+  .topnav .site { font-family: "Geist Pixel Line", "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 13px; font-weight: 400; letter-spacing: 0; text-transform: none; }
+  .topnav nav { display: flex; align-items: center; gap: 10px; font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 10.5px; font-weight: 400; letter-spacing: 0.02em; text-transform: lowercase; }
+  .topnav nav button { border: 0; background: none; padding: 2px 0; cursor: pointer; border-bottom: 1px solid transparent; font-weight: 400; text-transform: lowercase; letter-spacing: inherit; }
+  .topnav nav button { border-bottom: 0 !important; opacity: .85; transition: opacity .15s; }
+  .topnav nav button[aria-expanded="true"], .topnav nav button:hover { opacity: 1; }
+  .topnav nav .sep { width: 3px; height: 3px; background: rgba(255,255,255,.8); }
+  .paths-menu {
+    margin-top: 4px; padding: 10px 12px; border-radius: 0; display: grid; gap: 7px; text-align: left;
+    background: rgba(30, 45, 85, 0.26); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+    font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 11px; letter-spacing: 0.02em; text-transform: lowercase;
+  }
+  .paths-menu[hidden] { display: none; }
+  .paths-menu label { display: flex; align-items: center; gap: 9px; cursor: pointer; opacity: .55; transition: opacity .15s; }
+  .paths-menu label:has(input:checked), .paths-menu label:hover { opacity: 1; }
+  .paths-menu label small { font-size: 9.5px; opacity: .75; margin-left: auto; padding-left: 14px; }
+  /* line sample: a short hairline ending in a dot, like the strands */
+  .paths-menu i { position: relative; width: 22px; height: 1px; background: #fbfdf7; display: inline-block; }
+  .paths-menu i::after { content: ""; position: absolute; right: -2px; top: -1.5px; width: 4px; height: 4px; border-radius: 1px; background: #fbfdf7; }
+  .paths-menu input { appearance: none; -webkit-appearance: none; width: 9px; height: 9px; margin: 0; border: 1px solid #fff; border-radius: 0; background: transparent; cursor: pointer; display: grid; place-items: center; }
+  .paths-menu input:checked::before { content: ""; width: 5px; height: 5px; background: #fff; }
+  .paths-menu input:focus-visible { outline: 1px solid #fff; outline-offset: 2px; }
+
+  .foot {
+    left: max(40px, env(safe-area-inset-left, 0px)); right: max(40px, env(safe-area-inset-right, 0px));
+    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+    font-size: 13px; pointer-events: none;
+  }
+  .foot .mid { font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 10px; font-weight: 400; letter-spacing: 0.02em; text-transform: lowercase; text-align: center; }
+  .foot .right { justify-self: end; display: flex; gap: 14px; pointer-events: auto; }
+  .foot .right button { border: 0; background: none; padding: 0; cursor: pointer; opacity: .9; }
+  .foot .right button:hover, .foot .right button:focus-visible { opacity: 1; text-decoration: underline; text-underline-offset: 3px; outline: none; }
+  .foot .left { opacity: .9; }
+  .foot .right[hidden], .foot .left[hidden] { display: none; }
+  .paths-menu { position: absolute; left: 0; bottom: calc(100% + 10px); white-space: nowrap; }
+  .hidden-tracks [data-track] { display: none; }
+  @media (max-width: 700px) {
+    .feature { left: 16px; width: calc(100vw - 32px); top: calc(16px + env(safe-area-inset-top, 0px)); }
+    .feature .sub, .feature .rule, .feature .go { display: none; }
+    .feature .date { margin-top: 8px; font-size: 24px; }
+    .feature h2 { font-size: 19px; margin-top: 4px; }
+    .topnav { display: none; }
+    .foot { grid-template-columns: 1fr; left: 16px; right: 16px; }
+    .foot .left, .foot .right { display: none; }
+  }
+
+  /* text can be highlighted everywhere except the slider */
+  .cat, .years .year, .eras span, .foot .mid { pointer-events: auto; cursor: text; user-select: text; -webkit-user-select: text; }
+</style>
+
+<section class="hero" aria-label="Obraz: chłopiec i jego dusza na łące">
+  <video class="scene" src="video/background.mp4" poster="images/background-poster.webp" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+</section>
+
+<section class="tl" id="os-czasu" tabindex="0" aria-label="Oś czasu: jak rozumieć duszę. Użyj suwaka albo strzałek, aby przesuwać czas.">
+  <svg class="art" id="art" aria-hidden="true"></svg>
+  <div class="startline" id="startline"></div>
+  <div class="years"><div class="year" id="yA"></div><div class="year" id="yB"></div></div>
+  <div id="cats"></div>
+  <div class="markers" id="markers"></div>
+  <div class="eras" id="eras"></div>
+  <div class="nav" id="nav" aria-label="Przegląd całej osi czasu">
+    <div id="ticks"></div>
+    <div class="win" id="win"></div>
+    <button class="grip" id="gA" type="button" aria-label="Początek widocznego zakresu"></button>
+    <button class="grip" id="gB" type="button" aria-label="Koniec widocznego zakresu"></button>
+  </div>
+  <div class="hint" id="hint">Przesuń suwak, aby zmienić okres · kliknij liczbę, aby przybliżyć</div>
+</section>
+
+<section class="chrome feature" id="feature" aria-label="Wyróżnione" aria-live="polite">
+  <div class="bar">
+    <span class="label">Wyróżnione</span>
+    <button type="button" id="fPrev" aria-label="Poprzedni wyróżniony wpis">‹</button>
+    <span class="count" id="fCount">1 / 6</span>
+    <button type="button" id="fNext" aria-label="Następny wyróżniony wpis">›</button>
+  </div>
+  <div class="swap">
+    <div class="date" id="fDate"></div>
+    <div class="sub" id="fSub"></div>
+    <div class="rule"></div>
+    <h2 id="fTitle"></h2>
+  </div>
+  <button type="button" class="go" id="fGo">zobacz na osi <span aria-hidden="true">→</span></button>
+</section>
+
+<header class="chrome topnav">
+  <div class="site">Jak rozumieć duszę – 2800 lat sporu w 3 ścieżkach</div>
+  <nav aria-label="Menu">
+    <button type="button" id="navPaths" aria-expanded="false" aria-controls="pathsMenu">Ścieżki</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button type="button" id="navAbout">O projekcie</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button type="button" id="navSources">Źródła</button>
+  </nav>
+  <div class="paths-menu" id="pathsMenu" hidden></div>
+</header>
+
+<footer class="chrome foot">
+  <div class="left" hidden>2800 lat sporu w trzech ścieżkach</div>
+  <div class="mid" id="footMid">Przesuń oś albo wybierz punkt na ścieżce</div>
+  <div class="right" hidden><button type="button" id="footAbout">O projekcie</button><button type="button" id="footSources">Źródła</button></div>
+</footer>
+
+<aside class="panel" id="panel" aria-hidden="true" aria-label="Szczegóły"></aside>
+
+<script>
+(function () {
+  var v = document.querySelector('.scene');
+  var mq = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (v) { if (mq && mq.matches) v.pause(); else { var p = v.play(); if (p && p.catch) p.catch(function () {}); } }
+})();
+
+(function () {
+  var DATA = [
+    ['f', -750, 'tradycyjnie VIII w. p.n.e.', 'Homer', 'Dusza (psychē) to oddech życia, który opuszcza człowieka przy śmierci; w Hadesie zostaje jej cień.', 'wykład · źródła zewn. ✅'],
+    ['f', -550, 'ok. 585–525 p.n.e.', 'Anaksymenes', 'Powietrze podtrzymuje kosmos tak jak psychē podtrzymuje człowieka.', 'wykład'],
+    ['f', -530, 'ok. 570–490 p.n.e.', 'Pitagoras', 'Dusza istnieje przed ciałem i po nim; ciało jest więzieniem, a dusza wędruje (metempsychoza).', 'wykład'],
+    ['f', -500, 'ok. 540–480 p.n.e.', 'Heraklit', 'Wszystko jest materialne, także dusza, tylko z materii lżejszej od widzialnej.', 'wykład'],
+    ['f', -430, 'ok. 470–399 p.n.e.', 'Sokrates', 'Człowiekiem jest jego dusza: troszczyć się o siebie znaczy troszczyć się o duszę.', 'wykład'],
+    ['f', -415, 'ok. 460–370 p.n.e.', 'Demokryt', 'Są tylko atomy; myśli to ruchy atomów, a niematerialnej duszy nie ma.', 'wykład'],
+    ['f', -385, '428/427–348/347 p.n.e.', 'Platon', 'Dusza jest niematerialna i nieśmiertelna, a ciało bywa jej grobem; rozum jest woźnicą.', 'wykład'],
+    ['f', -345, '384–322 p.n.e.', 'Arystoteles', 'Dusza to forma ciała; człowiek jest jednością formy i materii, więc reinkarnacja jest niemożliwa.', 'wykład'],
+    ['f', -305, '341–270 p.n.e.', 'Epikur', 'Śmierć to rozpad atomów: „kiedy jesteś, śmierci nie ma; kiedy śmierć jest, ciebie nie ma”.', 'wykład'],
+    ['f', -290, 'ok. 334–262 p.n.e.', 'Stoicy (Zenon z Kition)', 'Dusza to pneuma, tchnienie przenikające kosmos.', 'wykład'],
+    ['f', 150, 'II w.', 'Gnoza i manichejczycy', 'Duch jest dobry, ciało złe: skrajny dualizm i pogarda dla ciała.', 'wykład'],
+    ['f', 245, '204/205–270', 'Plotyn', 'Dusza świata jest trzecią hipostazą po Jedni i Intelekcie.', 'wykład'],
+    ['f', 395, '354–430', 'Augustyn', 'Odkrycie życia wewnętrznego: „Chcę poznać Boga i duszę, tylko tyle”.', 'wykład'],
+    ['f', 1020, '980–1037', 'Awicenna', '„Człowiek latający”: samoświadomość nie zależy od ciała.', 'wykład'],
+    ['f', 1165, '1126–1198', 'Awerroes', 'Jeden intelekt dla całej ludzkości, więc nie ma nieśmiertelności indywidualnej.', 'wykład'],
+    ['f', 1262, 'ok. 1225–1274', 'Tomasz z Akwinu', 'Dusza jest formą ciała i zasadą życia; intelekt działa bez ciała, więc przetrwa śmierć.', 'wykład'],
+    ['f', 1300, 'ok. 1265/66–1308', 'Duns Szkot', 'Prymat woli nad intelektem: szczęście wieczne to miłość, nie kontemplacja.', 'wykład'],
+    ['f', 1330, 'ok. 1285–1347', 'Ockham', 'Nominalizm: są tylko byty jednostkowe, a „człowieczeństwo” to nazwa z wygody.', 'wykład'],
+    ['f', 1474, '1433–1499', 'Ficino', 'Godność człowieka płynie z nieśmiertelności duszy.', 'wykład'],
+    ['f', 1637, '1596–1650', 'Kartezjusz', 'Cogito: dusza to myślące „ja”, substancja odrębna od ciała.', 'wykład'],
+    ['f', 1650, 'XVII w.', 'Regius', 'Uczeń Kartezjusza uznał duszę za materialną.', 'wykład'],
+    ['f', 1670, '1632–1677', 'Spinoza', 'Jedna substancja: dusza i ciało to dwa aspekty tego samego.', 'wykład'],
+    ['f', 1680, '1638–1715', 'Malebranche', 'Okazjonalizm: jedynym sprawcą jest Bóg, a wola duszy to tylko „okazja”.', 'wykład'],
+    ['f', 1690, '1632–1704', 'Locke', 'Umysł to tabula rasa; idee pochodzą z danych zmysłowych.', 'wykład'],
+    ['f', 1700, '1646–1716', 'Leibniz', 'Monady i harmonia przedustawna: dusza i ciało jak dwa zgrane zegary.', 'wykład'],
+    ['f', 1715, '1685–1753', 'Berkeley', 'Esse est percipi: istnieć znaczy być postrzeganym.', 'wykład'],
+    ['f', 1739, '1711–1776', 'Hume', '„Ja” to tylko wiązka percepcji, „pusta scena”.', 'wykład'],
+    ['f', 1748, '1709–1751', 'de la Mettrie', 'Człowiek-maszyna: myślenie jest wydzieliną ciała.', 'wykład'],
+    ['f', 1781, '1724–1804', 'Kant', 'Nieśmiertelność duszy to postulat rozumu praktycznego, nie wiedza teoretyczna.', 'wykład'],
+    ['f', 1800, '1762–1814', 'Fichte', 'Absolutne Ja; człowiek staje się sobą wśród innych.', 'wykład'],
+    ['f', 1807, '1770–1831', 'Hegel', 'Duch jako ludzkość i Bóg, rozwijający się dialektycznie.', 'wykład'],
+    ['f', 1819, '1788–1860', 'Schopenhauer', 'Rzeczą samą w sobie jest ślepa Wola, a człowiek jej wehikułem.', 'wykład'],
+    ['f', 1830, '1798–1857', 'Comte', 'Nauka zna mózg, nie umysł: scjentyzm.', 'wykład'],
+    ['f', 1841, '1804–1872', 'Feuerbach', 'Religia jako projekcja: „człowiek jest tym, co je”.', 'wykład'],
+    ['f', 1846, '1813–1855', 'Kierkegaard', 'Prawda subiektywna; wiara jako ryzyko.', 'wykład'],
+    ['f', 1862, '1820–1903', 'Spencer', 'Strach i wstyd to wytwory ewolucji.', 'wykład'],
+    ['f', 1867, '1818–1883', 'Marks', 'Człowiek jest bytem pracującym; moralność należy do nadbudowy.', 'wykład'],
+    ['f', 1883, '1844–1900', 'Nietzsche', 'Śmierć Boga i wola mocy.', 'wykład'],
+    ['f', 1892, '1848–1925', 'Frege', 'Antypsychologizm: myśli należą do „trzeciego królestwa”.', 'wykład'],
+    ['f', 1900, '1856–1939', 'Freud', 'Nieświadomość kończy kartezjańską przejrzystość „ja”.', 'wykład'],
+    ['f', 1912, '1872–1970', 'Russell', '„Ja” znamy bezpośrednio: nie jest ani substancją, ani wiązką.', 'wykład'],
+    ['f', 1913, '1859–1938', 'Husserl', 'Obrona podmiotu przed scjentyzmem: świat życia i akty intencjonalne.', 'wykład'],
+    ['f', 1921, '1889–1951', 'Wittgenstein', '„Ja” jest jak oko poza polem widzenia.', 'wykład'],
+    ['f', 1923, '1878–1965', 'Buber', 'Człowiek staje się sobą w relacji Ja–Ty.', 'wykład'],
+    ['f', 1927, '1889–1976', 'Heidegger', 'Dasein jako bycie ku śmierci.', 'wykład'],
+    ['f', 1943, '1905–1980 · 1913–1960', 'Sartre i Camus', 'Pusta wolność; absurd i bunt.', 'wykład'],
+    ['f', 1949, '1900–1976', 'Ryle', '„Duch w maszynie” to błąd kategorialny.', 'wykład'],
+    ['f', 1960, '1900–2002', 'Gadamer', 'Człowiek jako istota rozumiejąca.', 'wykład'],
+    ['f', 1965, '1902–1994 · 1908–2000', 'Popper i Quine', 'Trzy światy; naturalizm.', 'wykład'],
+    ['f', 1969, 'XX w.', 'Personalizm (Wojtyła, Styczeń)', 'Osobę afirmuje się dla niej samej; jej godność jest ontyczna.', 'wykład'],
+    ['f', 1975, '1926–1984 · 1930–2004', 'Foucault i Derrida', 'Koniec podmiotu i kategorii człowieka.', 'wykład'],
+    ['f', 1991, '1942–2024', 'Dennett', 'Świadomość jest iluzją; istnieje tylko mózg.', 'wykład'],
+
+    ['p', -165, 'ok. 167–164 p.n.e.', 'Księga Daniela 12,2', 'Najwcześniejsze wyraźne świadectwo zmartwychwstania w Biblii hebrajskiej.', 'źródła zewn. ✅'],
+    ['p', -100, 'II–I w. p.n.e.', '2 Księga Machabejska 7', 'Męczennicy wyznają wiarę we wskrzeszenie „do wiecznego odrodzenia życia”.', 'źródła zewn. ⚠️ datowanie sporne'],
+    ['p', -50, 'koniec II – I w. p.n.e.', 'Księga Mądrości 3,1–4', '„Nadzieja ich pełna nieśmiertelności”: los sprawiedliwych po śmierci.', 'źródła zewn. ⚠️ datowanie sporne'],
+    ['p', 54, 'ok. 53–57 n.e.', 'św. Paweł, 1 Kor 15', 'Zmartwychwstanie ciała: życie w ciele także w wieczności.', 'źródła zewn. ✅'],
+    ['p', 58, 'I w. n.e.', 'Rz 2,14–15', 'Prawo wpisane w serca: sumienie jako głos Boga.', 'wykład'],
+
+    ['m', 210, 'III w.', 'Tertulian', 'Traducjanizm: dusza przekazywana przez rodziców; ujęcie półmaterialne.', 'źródła zewn. ✅'],
+    ['m', 232, 'III w.', 'Orygenes', 'Preegzystencja dusz, później odrzucona przez Kościół.', 'źródła zewn. ⚠️'],
+    ['m', 415, 'IV–V w.', 'Augustyn i Hieronim', 'Spór o pochodzenie duszy: przekazywana czy stwarzana? Hieronim za stwarzaniem.', 'źródła zewn. ✅'],
+    ['m', 543, '543 i 553', 'Konstantynopol', 'Potępienie origenizmu: preegzystencja dusz odrzucona w tradycji.', 'źródła zewn. ✅'],
+    ['m', 1277, '7 III i 18 III 1277', 'Potępienia w Paryżu i Oksfordzie', 'Spór o jedność formy substancjalnej w człowieku.', 'źródła zewn. ⚠️'],
+    ['m', 1312, '6 V 1312', 'Sobór w Vienne', 'Dusza rozumna jest sama w sobie i istotowo formą ciała ludzkiego.', 'źródła zewn. ✅'],
+    ['m', 1513, '19 XII 1513', 'V Sobór Laterański', 'Dusza jest nieśmiertelna i osobna dla każdego człowieka, nie jedna dla wszystkich.', 'źródła zewn. ✅'],
+    ['m', 1950, '1950', 'Pius XII, Humani generis', 'Dusze są stwarzane bezpośrednio przez Boga.', 'źródła zewn. ✅'],
+    ['m', 1965, '7 XII 1965', 'Gaudium et spes 14', '„Choć człowiek składa się z ciała i duszy, jest jednością.”', 'źródła zewn. ✅'],
+    ['m', 1992, '1992', 'Katechizm, nr 362–368 i 1013', 'Dusza duchowa, nieśmiertelna, forma ciała; „po śmierci nie ma reinkarnacji”.', 'źródła zewn. ✅'],
+    ['m', 2024, '2 IV 2024', 'Dignitas infinita', 'Każda osoba ma nieskończoną godność, zakorzenioną w samym jej istnieniu.', 'źródła zewn. ✅']
+  ].map(function (r, i) { return { path: r[0], y: r[1], d: r[2], name: r[3], text: r[4], src: r[5], id: i }; });
+
+  // Tracks top to bottom, as on the reference: upper gold, middle coral (straight), lower plum
+  var TRACKS = [
+    { id: 'f', name: 'Filozofia', stops: ['--f1', '--f2', '--f3'], line: ['#fbfdf7', '#fbfdf7'], c: 0.245 },
+    { id: 'p', name: 'Pismo', stops: ['--p1', '--p2'], line: ['#fbfdf7', '#fbfdf7'], c: 0.46 },
+    { id: 'm', name: 'Kościół', sub: 'Ojcowie, sobory, Magisterium', stops: ['--m1', '--m2', '--m3'], line: ['#fbfdf7', '#fbfdf7'], c: 0.675 }
+  ];
+  var ERAS = [[-800, 'Grecja'], [-300, 'Hellenizm i Biblia'], [600, 'Średniowiecze'], [1500, 'Nowożytność'], [1800, 'XIX–XXI w.']];
+  var SCALE_CUTS = [-300, 600, 1500, 1800];   // time spacing (unchanged): crowded centuries get more room
+  var DOM = [-800, new Date().getFullYear()], MINSPAN = 25;   // ends at the current year
+  var view = { a: DOM[0], b: DOM[1] };   // open on the whole history
+  var css = getComputedStyle(document.documentElement);
+  function col(n) { return css.getPropertyValue(n).trim(); }
+
+  var tl = document.getElementById('os-czasu'), art = document.getElementById('art');
+  var markersEl = document.getElementById('markers'), panel = document.getElementById('panel');
+  var NS = 'http://www.w3.org/2000/svg';
+  var G = {}; // geometry
+
+  function el(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function fmtY(y) { return y < 0 ? '−' + (-y) : String(y); }
+  function fmtLong(y) { return y < 0 ? (-y) + ' p.n.e.' : y + ' n.e.'; }
+
+  // seeded random for the background specks (same pattern every load)
+  var seed = 7; function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+
+  function geometry() {
+    var W = tl.clientWidth, H = tl.clientHeight, narrow = W < 700;
+    // the shared origin sits just right of the soul in the video
+    var vr = document.querySelector('.scene').getBoundingClientRect();
+    // the line starts above the soul, not touching it
+    var ob = vr.left + 0.2 * vr.width;          // base for the split position (unchanged)
+    var ox = vr.left + 0.186 * vr.width, oy = vr.top + 0.6 * vr.height - H * (narrow ? 0.05 : 0.06);
+    var T = H * (narrow ? 0.07 : 0.085);
+    var labelW = narrow ? 0 : Math.max(140, W * 0.095);
+    var navY = H - Math.max(38, H * 0.06);
+    G = {
+      W: W, H: H, narrow: narrow, T: T, y0: oy, ox: ox,
+      // sketch shape: hook up out of the soul -> short trunk -> three branches fanning out
+      yt: Math.min(vr.top + 0.6 * vr.height - H * (narrow ? 0.09 : 0.1), H - 110 - H * (narrow ? 0.12 : 0.135) - T / 2),  // trunk: above the soul
+      hookL: narrow ? 30 : Math.max(60, W * 0.045),            // hook length (soul -> trunk)
+      xb: ob + (narrow ? 30 + 14 : Math.max(60, W * 0.045) + Math.max(60, W * 0.05)),  // branch point
+      xf: ob + (narrow ? 30 + 14 + 70 : Math.max(60, W * 0.045) + Math.max(60, W * 0.05) + Math.max(150, W * 0.12)),
+      side: narrow ? 14 : Math.max(32, W * 0.03),       // margin for the slider and labels
+      re: W + 1,                                         // ribbons run to the screen edge
+      xe: W - (narrow ? 14 : Math.max(32, W * 0.03)) - (narrow ? 16 : 92),   // line stops just before the label text
+      // slider runs from the starting point above the soul to the end of the ribbons
+      nav: { x: ox, w: (W - (narrow ? 14 : Math.max(32, W * 0.03))) - ox, y: navY }
+    };
+    G.m0 = G.xf + 24; G.m1 = G.xe - 14;   // dots stay clear of the labels
+    // three bands in the sky above the soul, evenly spaced
+    var D = H * (narrow ? 0.105 : 0.12);   // distance between tracks
+    TRACKS.forEach(function (t, k) { t.y = G.yt + (k - 1) * D; });
+    // slider sits just below the lowest ribbon, from the split point to the end of the ribbons
+    G.nav.x = G.xf; G.nav.w = G.xe - G.xf;   // spans the straight part of the lines, where years are plotted
+    G.nav.y = Math.min(H - Math.max(30, H * 0.04), TRACKS[2].y + T / 2 + 70);
+  }
+
+  function drawArt() {
+    art.innerHTML = '';
+    art.setAttribute('viewBox', '0 0 ' + G.W + ' ' + G.H);
+    var defs = el('defs', {}, art);
+    // decorations: sparse specks and tiny constellations
+    seed = 7;
+    var deco = el('g', { class: 'deco', style: 'display:none' }, art);
+    var dc = ['#e9a7b8', '#f6dc8b', '#f4b49a', '#d9b3c9'];
+    for (var i = 0; i < 46; i++) {
+      var x = rnd() * G.W, y = rnd() * G.H;
+      el('circle', { cx: x, cy: y, r: (rnd() * 1.6 + 0.8).toFixed(2), fill: dc[i % 4], opacity: (0.45 + rnd() * 0.4).toFixed(2) }, deco);
+      if (i % 9 === 0) {
+        var x2 = x + (rnd() - 0.5) * 70, y2 = y + (rnd() - 0.5) * 50, x3 = x2 + (rnd() - 0.5) * 60, y3 = y2 + (rnd() - 0.5) * 40;
+        el('polyline', { points: x + ',' + y + ' ' + x2 + ',' + y2 + ' ' + x3 + ',' + y3, fill: 'none', stroke: '#f2b8a6', 'stroke-width': 0.7, opacity: 0.6 }, deco);
+        el('circle', { cx: x2, cy: y2, r: 1.6, fill: '#e9a7b8' }, deco);
+        el('circle', { cx: x3, cy: y3, r: 1.3, fill: '#f6dc8b' }, deco);
+      }
+    }
+    var h = G.T / 2, ox = G.ox, oy = G.y0, yt = G.yt, xb = G.xb, xf = G.xf, hx = ox + G.hookL;
+    function cub(p0, p1, p2, p3, n, out) {
+      for (var i = (out.length ? 1 : 0); i <= n; i++) { var t = i / n, u = 1 - t;
+        out.push([u*u*u*p0[0] + 3*u*u*t*p1[0] + 3*u*t*t*p2[0] + t*t*t*p3[0], u*u*u*p0[1] + 3*u*u*t*p1[1] + 3*u*t*t*p2[1] + t*t*t*p3[1]]); }
+      return out;
+    }
+    function centre(ty) { // sampled centreline: hook from the soul, trunk, branch, straight track
+      var pts = [];
+      var n = 28; for (var i = 0; i <= n; i++) pts.push([ox + (xb - ox) * i / n, yt]);   // straight trunk from the point
+      var mid = (xf - xb) * 0.5;
+      cub([xb, yt], [xb + mid, yt], [xf - mid, ty], [xf, ty], 30, pts);
+      pts.push([G.re, ty]);
+      return pts;
+    }
+    function band(pts) { // offset the centreline both ways; taper near the soul
+      var L = [], R = [], acc = 0, taper = G.hookL * 1.6;
+      for (var i = 0; i < pts.length; i++) {
+        var a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
+        var dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
+        if (i) acc += Math.hypot(pts[i][0] - pts[i-1][0], pts[i][1] - pts[i-1][1]);
+        var k = Math.min(1, acc / taper); var w = h;
+        // keep the square end vertical
+        if (i === pts.length - 1) { nx = 0; ny = 1; }
+        L.push([pts[i][0] + nx * w, pts[i][1] + ny * w]); R.push([pts[i][0] - nx * w, pts[i][1] - ny * w]);
+      }
+      var w0 = h * 0.55;
+      return 'M' + L.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' L') +
+        ' L' + R.reverse().map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' L') +
+        ' Z';
+    }
+    function line(pts, from) { return 'M' + pts.slice(from).map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' L'); }
+    var span = G.re - ox, fb = (xb - ox) / span, ff = (xf - ox) / span;
+    // colour fades out towards the soul; only the white line continues down to it
+    var frostD = [];
+    var fg = el('linearGradient', { id: 'fadeg', gradientUnits: 'userSpaceOnUse', x1: ox, x2: xf + (G.re - xf) * 0.08, y1: 0, y2: 0 }, defs);
+    [[0, 0], [0.15, 0.02], [0.3, 0.08], [0.45, 0.2], [0.6, 0.38], [0.75, 0.6], [0.88, 0.82], [1, 1]].forEach(function (st) {
+      el('stop', { offset: st[0], 'stop-color': '#fff', 'stop-opacity': st[1] }, fg);
+    });
+    var mk = el('mask', { id: 'fade', maskUnits: 'userSpaceOnUse', x: 0, y: 0, width: G.W, height: G.H }, defs);
+    el('rect', { x: 0, y: 0, width: G.W, height: G.H, fill: 'url(#fadeg)' }, mk);
+    // strands (one per entry) are drawn in render(); here only their layers, the trunk and the point
+    // each path keeps its own colours, as on the original ribbons: gold, coral, plum to periwinkle
+    TRACKS.forEach(function (t) {
+      var lg = el('linearGradient', { id: 'sg' + t.id, gradientUnits: 'userSpaceOnUse', x1: G.xf, x2: G.W, y1: 0, y2: 0 }, defs);
+      var lc = t.line || t.stops.map(col);
+      lc.forEach(function (c, j) { el('stop', { offset: j / (lc.length - 1), 'stop-color': c }, lg); });
+    });
+    G.sg = el('g', { class: 'strands' }, art);
+    G.pg = el('g', { class: 'pulses' }, art);
+    strandEls = {};
+    // the node: a soft rounded square, the strands meet at its edge (as in the Giga reference)
+    var ng = el('linearGradient', { id: 'nodeg', x1: 0, y1: 0, x2: 1, y2: 1 }, defs);
+    el('stop', { offset: 0, 'stop-color': '#ffffff' }, ng);
+    el('stop', { offset: 0.55, 'stop-color': '#eef0fa' }, ng);
+    el('stop', { offset: 1, 'stop-color': '#e3d9ee' }, ng);
+    G.ns = 8;
+    el('rect', { class: 'soulpoint', x: G.ox - G.ns / 2, y: G.yt - G.ns / 2, width: G.ns, height: G.ns, rx: 1.5, ry: 1.5 }, art);
+    // featured block shares its left edge with the starting point
+    var feat = document.getElementById('feature');
+    if (feat) feat.style.left = G.narrow ? '' : (G.ox - 3) + 'px';
+    // and sits lower, ending a little above the top ribbon
+    if (feat && !G.narrow) {
+      var topRib = TRACKS[0].y - G.T / 2;
+      feat.style.top = Math.max(28, topRib - feat.offsetHeight - 56) + 'px';
+      // title and menu sit at the bottom-left, on the same left edge as the point
+      var tn = document.querySelector('.topnav');
+      if (tn) { tn.style.left = (G.ox - 3) + 'px'; tn.style.top = 'auto'; tn.style.bottom = 'calc(51px + env(safe-area-inset-bottom, 0px))'; }
+    } else if (feat) feat.style.top = '';
+    // labels
+    var cats = document.getElementById('cats'); cats.innerHTML = '';
+    TRACKS.forEach(function (t) {
+      if (t.hidden) return;
+      var n = DATA.filter(function (d) { return d.path === t.id; }).length;
+      var c = document.createElement('div'); c.className = 'cat';
+      c.innerHTML = '<em>' + t.name + '</em><span>' + n + ' wpisów</span>';
+      if (G.narrow) { c.style.left = (G.xf + 8) + 'px'; c.style.top = (t.y - G.T / 2 - 18) + 'px'; c.style.textAlign = 'left'; }
+      else { c.style.right = G.side + 'px'; c.style.top = t.y + 'px'; c.style.maxWidth = '220px'; }
+      cats.appendChild(c);
+    });
+    // start line under the left year, down to the origin
+    var sl = document.getElementById('startline');
+    sl.style.display = 'none'; sl.style.left = G.ox + 'px'; sl.style.top = (G.H * 0.05 + 70) + 'px'; sl.style.height = Math.max(0, G.y0 - G.H * 0.05 - 70) + 'px';
+    var yA = document.getElementById('yA'), yB = document.getElementById('yB');
+    // years line up with the outer edges of the slider (including its round handles), a bit lower
+    yA.style.left = G.nav.x + 'px'; yA.style.top = (G.nav.y + 34) + 'px';
+    yB.style.right = (G.W - G.nav.x - G.nav.w) + 'px'; yB.style.top = (G.nav.y + 34) + 'px'; yB.style.textAlign = 'right';
+    // navigator geometry
+    var nav = document.getElementById('nav');
+    nav.style.left = G.nav.x + 'px'; nav.style.width = G.nav.w + 'px'; nav.style.top = G.nav.y + 'px';
+    var ticks = document.getElementById('ticks'); ticks.innerHTML = '';
+    DATA.forEach(function (d) { var t = document.createElement('div'); t.className = 'tick'; t.style.left = (navX(d.y) - G.nav.x - 1) + 'px'; ticks.appendChild(t); });
+    var eras = document.getElementById('eras'); eras.innerHTML = '';
+    eras.style.left = '0'; eras.style.top = (G.nav.y - 22) + 'px'; eras.style.width = G.W + 'px';
+    ERAS.forEach(function (e, i) {
+      var s = document.createElement('span'); s.textContent = e[1];
+      s.style.left = Math.max(G.nav.x, navX(e[0])) + 'px';
+      if (!G.narrow || i % 2 === 0) eras.appendChild(s);
+    });
+    // spread the era names evenly across the full width of the slider
+    var spans = Array.prototype.slice.call(eras.children);
+    var total = spans.reduce(function (t, sp) { return t + sp.offsetWidth; }, 0);
+    var gap = spans.length > 1 ? (G.nav.w - total) / (spans.length - 1) : 0, xx = G.nav.x;
+    spans.forEach(function (sp) { sp.style.left = xx + 'px'; xx += sp.offsetWidth + gap; });
+    // instruction sits centred under the slider, between the two years
+    var fm = document.getElementById('footMid');
+    fm.style.position = 'fixed'; fm.style.whiteSpace = 'nowrap'; fm.style.transform = 'none'; fm.style.textAlign = 'left';
+    fm.style.left = G.nav.x + 'px';                 // starts exactly where the slider starts
+    fm.style.top = (G.nav.y + 68) + 'px';           // just below the year
+    var hint = document.getElementById('hint'); hint.style.left = 'auto'; hint.style.right = (G.W - G.nav.x - G.nav.w) + 'px'; hint.style.top = (G.nav.y - 46) + 'px';
+    hint.hidden = true;   // the instruction now lives in the footer
+  }
+
+  function W_left() { return Math.min(G.xf, G.W * 0.06); }
+  // time scale: each era gets room in proportion to how many entries it holds,
+  // so the crowded modern centuries spread out (same scale on ribbons and slider)
+  var SEG = (function () {
+    var cuts = [DOM[0]].concat(SCALE_CUTS).concat([DOM[1]]);
+    var w = [];
+    for (var i = 0; i < cuts.length - 1; i++) {
+      var n = DATA.filter(function (d) { return d.y >= cuts[i] && d.y < cuts[i + 1]; }).length;
+      w.push(n + 3);
+    }
+    var tot = w.reduce(function (a, b) { return a + b; }, 0), acc = 0, out = [];
+    for (var j = 0; j < w.length; j++) { out.push({ y0: cuts[j], y1: cuts[j + 1], u0: acc / tot, u1: (acc + w[j]) / tot }); acc += w[j]; }
+    return out;
+  })();
+  function U(y) {
+    for (var i = 0; i < SEG.length; i++) { var g = SEG[i];
+      if (y <= g.y1 || i === SEG.length - 1) return g.u0 + (Math.max(g.y0, Math.min(g.y1, y)) - g.y0) / (g.y1 - g.y0) * (g.u1 - g.u0); }
+  }
+  function Y(u) {
+    for (var i = 0; i < SEG.length; i++) { var g = SEG[i];
+      if (u <= g.u1 || i === SEG.length - 1) return g.y0 + (Math.max(g.u0, Math.min(g.u1, u)) - g.u0) / (g.u1 - g.u0) * (g.y1 - g.y0); }
+  }
+  function navX(y) { return G.nav.x + U(y) * G.nav.w; }
+  function navY(x) { return Y((x - G.nav.x) / G.nav.w); }
+  function xOf(y) { var a = U(view.a), b = U(view.b); return G.m0 + (U(y) - a) / (b - a) * (G.m1 - G.m0); }
+  function yOfX(x) { var a = U(view.a), b = U(view.b); return Y(a + (x - G.m0) / (G.m1 - G.m0) * (b - a)); }
+
+  function clampView(a, b) {
+    var span = Math.max(MINSPAN, Math.min(DOM[1] - DOM[0], b - a));
+    if (a < DOM[0]) a = DOM[0];
+    if (a + span > DOM[1]) a = DOM[1] - span;
+    view.a = a; view.b = a + span;
+  }
+
+  // ---- markers with clustering by on-screen distance ----
+  // ---- entries as dots in vertical columns, each tied back to the soul point by its own strand ----
+  var live = {}, strandEls = {}, visibleIds = [];
+  function strandD(t, x, y) {
+    // no trunk: every strand leaves the node's edge on a level tangent and bends straight into its track
+    var ox = G.ox + (G.ns || 8) / 2, yt = G.yt, xf = G.xf, m = (xf - ox) * 0.55;
+    var qy = t.y + (y - t.y) * 0.04;                       // tight bundle into the node, fans out only near the dots
+    var k = Math.max(0, x - xf) * 0.5, k1 = Math.max(0, x - xf) * 0.8, k2 = Math.max(0, x - xf) * 0.15;
+    // the knee and its two handles move together (keeps the curve smooth); outer handles bend on their own
+    var kd = pull(xf, qy), a = pull(ox + m, yt), b = pull(x - k, y);
+    function f(px, py) { return px.toFixed(1) + ',' + py.toFixed(1); }
+    return 'M' + f(ox, yt) +
+      ' C' + f(ox + m + a[0], yt + a[1]) + ' ' + f(xf - m * 0.6 + kd[0], qy + kd[1]) + ' ' + f(xf + kd[0], qy + kd[1]) +
+      ' C' + f(xf + k1 + kd[0], qy + kd[1]) + ' ' + f(x - k2 + b[0], y + b[1]) + ' ' + f(x, y);
+  }
+
+  // ---- cursor pull: points near the cursor drift towards it, on a soft spring ----
+  var M = { x: 0, y: 0, s: 0 }, MT = { x: 0, y: 0, s: 0 }, R = 250;
+  function pull(px, py) {
+    if (M.s < 0.001) return [0, 0];
+    var dx = M.x - px, dy = M.y - py, w = M.s * Math.exp(-(dx * dx + dy * dy) / (2 * R * R));
+    return [dx * w * 0.45, dy * w * 0.45];
+  }
+  var calmPull = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!calmPull) {
+    window.addEventListener('pointermove', function (e) {
+      MT.x = e.clientX; MT.y = e.clientY; MT.s = e.target.closest && e.target.closest('.nav, .panel, .chrome') ? 0 : 1;
+      if (M.s < 0.001) { M.x = MT.x; M.y = MT.y; }
+    }, { passive: true });
+    document.documentElement.addEventListener('pointerleave', function () { MT.s = 0; });
+    window.addEventListener('blur', function () { MT.s = 0; });
+    (function tick() {
+      var ex = MT.x - M.x, ey = MT.y - M.y, es = MT.s - M.s;
+      if (Math.abs(ex) + Math.abs(ey) > 0.3 || Math.abs(es) > 0.002) {
+        M.x += ex * 0.12; M.y += ey * 0.12; M.s += es * 0.08;
+        if (G.sg) renderMarkers();
+      }
+      requestAnimationFrame(tick);
+    })();
+  }
+  function dotCol(t, x) {
+    var lc = t.line || t.stops.map(col);
+    var k = Math.max(0, Math.min(1, (x - G.xf) / (G.W - G.xf))), i = Math.round(k * (lc.length - 1));
+    return lc[i];
+  }
+  function strand(id, d, ghost, t) {
+    var p = strandEls[id];
+    if (!p) { p = strandEls[id] = el('path', { class: 'strand' }, G.sg); p.style.stroke = 'url(#sg' + t.id + ')'; }
+    p.setAttribute('d', d); p.classList.toggle('ghost', !!ghost);
+    return p;
+  }
+  function renderMarkers() {
+    var used = {}, usedS = {}; visibleIds = [];
+    TRACKS.forEach(function (t) {
+      if (t.hidden) return;
+      var items = DATA.filter(function (d) { return d.path === t.id && d.y >= view.a && d.y <= view.b; })
+        .sort(function (p, q) { return p.y - q.y; });
+      // neighbours that would touch share a column: dots stack vertically, like the Giga bundles
+      var cols = [], COL = 16, half = G.T * 0.75;
+      items.forEach(function (d) {
+        var x = xOf(d.y), c = cols[cols.length - 1];
+        if (c && x - c.x0 <= COL) { c.list.push(d); c.sx += x; } else cols.push({ x0: x, sx: x, list: [d] });
+      });
+      var STAGGER = [0, -0.55, 0.45, -0.2, 0.7, -0.75, 0.25, -0.4, 0.6];   // columns sit at different heights
+      cols.forEach(function (c, ci) {
+        var n = c.list.length, cx = c.sx / n, sp = n > 1 ? Math.min(13, 2 * half / (n - 1)) : 0;
+        var room = Math.max(0, half - sp * (n - 1) / 2), cy = t.y + STAGGER[c.list[0].id % STAGGER.length] * room;
+        c.list.forEach(function (d, i) {
+          var y = cy + (i - (n - 1) / 2) * sp, key = 'e' + d.id, b = live[key];
+          if (!b) {
+            b = document.createElement('button'); b.type = 'button'; b.className = 'mk enter dot';
+            b.setAttribute('aria-label', d.name + ', ' + d.d);
+            b.addEventListener('mouseenter', function () { userHover = true; focusEntry(d); });
+            b.addEventListener('focus', function () { userHover = true; focusEntry(d); });
+            b.addEventListener('mouseleave', function () { userHover = false; focusEntry(null); });
+            b.addEventListener('blur', function () { userHover = false; focusEntry(null); });
+            b.addEventListener('click', function (e) { e.stopPropagation(); openEvent(d); });
+            markersEl.appendChild(b); live[key] = b;
+            setTimeout(function () { b.classList.remove('enter'); }, 320);
+          }
+          b.style.left = cx + 'px'; b.style.top = y + 'px'; b.style.setProperty('--c', dotCol(t, cx));
+          strand(d.id, strandD(t, cx, y), false, t); usedS[d.id] = true;
+          used[key] = true; visibleIds.push(d.id);
+        });
+      });
+      // entries later than the window: faint strands that run on past the edge, so the bundle keeps its body
+      var later = DATA.filter(function (d) { return d.path === t.id && d.y > view.b; });
+      later.forEach(function (d, i) {
+        var y = t.y + ((i % 9) - 4) / 4 * half * 0.6;
+        strand(d.id, strandD(t, G.W + 40, y), true, t); usedS[d.id] = true;
+      });
+    });
+    for (var k in live) if (!used[k]) { if (live[k] === document.activeElement) tl.focus({ preventScroll: true }); live[k].remove(); delete live[k]; }
+    for (var s in strandEls) if (!usedS[s]) { strandEls[s].remove(); delete strandEls[s]; }
+  }
+
+  // highlight one entry: its strand lights up, its dot grows, its label shows
+  var current = null, userHover = false;
+  function focusEntry(d) {
+    if (current != null) {
+      if (strandEls[current]) strandEls[current].classList.remove('hl');
+      if (live['e' + current]) live['e' + current].classList.remove('on');
+    }
+    current = null; hidePill();
+    if (!d || !live['e' + d.id]) return;
+    current = d.id;
+    var p = strandEls[d.id]; if (p) { p.classList.add('hl'); G.sg.appendChild(p); }
+    live['e' + d.id].classList.add('on');
+    showPill(d, live['e' + d.id]);
+  }
+
+  // a light travels out of the soul point along a strand and lands on its dot
+  function pulse(id) {
+    var src = strandEls[id]; if (!src || !G.pg) return;
+    var p = el('path', { class: 'pulse', d: src.getAttribute('d') }, G.pg);
+    var len = p.getTotalLength(), seg = Math.min(70, len * 0.18);
+    p.style.strokeDasharray = seg + ' ' + (len + seg);
+    var a = p.animate([{ strokeDashoffset: seg }, { strokeDashoffset: -len }], { duration: Math.max(1400, len / 0.42), easing: 'cubic-bezier(.45,0,.25,1)' });
+    a.onfinish = function () {
+      p.remove();
+      var b = live['e' + id]; if (b) { b.classList.remove('ping'); void b.offsetWidth; b.classList.add('ping'); }
+    };
+  }
+  function pick() { return visibleIds[Math.floor(Math.random() * visibleIds.length)]; }
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!calm) {
+    setInterval(function () { if (!document.hidden && visibleIds.length) pulse(pick()); }, 650);
+    // when nobody is hovering, the page shows one entry at a time on its own
+    setInterval(function () {
+      if (document.hidden || userHover || panel.classList.contains('open') || !visibleIds.length) return;
+      var id = pick(); focusEntry(DATA[id]); pulse(id);
+    }, 3600);
+  }
+  // on load the strands draw themselves out of the soul point
+  var drawnIn = false;
+  function drawIn() {
+    if (drawnIn || calm) return; drawnIn = true;
+    var i = 0;
+    for (var id in strandEls) (function (p, k) {
+      var len = p.getTotalLength();
+      p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+      var a = p.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration: 1600, delay: k * 14, easing: 'cubic-bezier(.3,0,.2,1)', fill: 'forwards' });
+      a.onfinish = function () { a.cancel(); p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; };
+    })(strandEls[id], i++);
+  }
+
+  var pill = null;
+  function showPill(d, b) {
+    hidePill();
+    pill = document.createElement('div'); pill.className = 'pill';
+    pill.innerHTML = '<b></b><i></i>';
+    pill.firstChild.textContent = d.name; pill.lastChild.textContent = d.d;
+    tl.appendChild(pill);
+    var w = pill.offsetWidth, x = parseFloat(b.style.left);
+    x = Math.max(16 + w / 2, Math.min(G.W - 16 - w / 2, x));
+    pill.style.left = x + 'px'; pill.style.top = (parseFloat(b.style.top) - 18) + 'px';   // just above the tick
+  }
+  function hidePill() { if (pill) { pill.remove(); pill = null; } }
+
+  // ---- render loop ----
+  var queued = false;
+  function render() { queued = false; renderMarkers(); renderChrome(); }
+  function schedule() { if (!queued) { queued = true; requestAnimationFrame(render); } }
+  function renderChrome() {
+    var a = Math.round(view.a), b = Math.round(view.b);
+    document.getElementById('yA').textContent = (a < 0 ? (-a) + ' p.n.e.' : a + ' n.e.');
+    document.getElementById('yB').textContent = (b < 0 ? (-b) + ' p.n.e.' : b + ' n.e.');
+    var xa = navX(view.a) - G.nav.x, xb = navX(view.b) - G.nav.x;
+    var win = document.getElementById('win'); win.style.left = xa + 'px'; win.style.width = (xb - xa) + 'px';
+    document.getElementById('gA').style.left = xa + 'px'; document.getElementById('gB').style.left = xb + 'px';
+  }
+
+  var anim = null;
+  function zoomTo(a, b) {
+    var pad = Math.max(10, (b - a) * 0.15), ta = a - pad, tb = b + pad;
+    var fa = view.a, fb = view.b, t0 = performance.now(), dur = (mq && mq.matches) ? 0 : 380;
+    cancelAnimationFrame(anim);
+    (function step(now) {
+      var k = dur ? Math.min(1, (now - t0) / dur) : 1; k = 1 - Math.pow(1 - k, 3);
+      clampView(fa + (ta - fa) * k, fb + (tb - fb) * k); render();
+      if (k < 1) anim = requestAnimationFrame(step);
+    })(t0);
+  }
+  var mq = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // ---- drag the timeline ----
+  var drag = null;
+  tl.addEventListener('pointerdown', function (e) {
+    return;   // dragging the whole timeline is off: moving works on the slider only
+    drag = { x: e.clientX, a: view.a, b: view.b, id: e.pointerId, moved: false };
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var dx = e.clientX - drag.x;
+    if (!drag.moved && Math.abs(dx) > 4) { drag.moved = true; tl.classList.add('dragging'); hidePill(); try { tl.setPointerCapture(drag.id); } catch (x) {} }
+    if (!drag.moved) return;
+    var per = (drag.b - drag.a) / (G.m1 - G.m0);
+    clampView(drag.a - dx * per, drag.b - dx * per); schedule();
+  });
+  function endDrag() { if (drag) { tl.classList.remove('dragging'); drag = null; } }
+  window.addEventListener('pointerup', endDrag); window.addEventListener('pointercancel', endDrag);
+
+  tl.addEventListener('wheel', function (e) {
+    if (!e.target.closest('.nav')) return;   // only over the slider
+    var span = view.b - view.a;
+    if (e.ctrlKey) { // pinch / ctrl+wheel zoom
+      e.preventDefault();
+      var at = (view.a + view.b) / 2, f = Math.exp(e.deltaY * 0.01);
+      clampView(at - (at - view.a) * f, at + (view.b - at) * f); schedule();
+    } else if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      e.preventDefault();
+      var per = span / (G.m1 - G.m0); clampView(view.a + e.deltaX * per, view.b + e.deltaX * per); schedule();
+    }
+  }, { passive: false });
+
+  tl.addEventListener('keydown', function (e) {
+    var span = view.b - view.a, step = span * (e.shiftKey ? 0.25 : 0.05);
+    if (e.key === 'ArrowRight') { clampView(view.a + step, view.b + step); schedule(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { clampView(view.a - step, view.b - step); schedule(); e.preventDefault(); }
+    else if (e.key === '+' || e.key === '=') { zoomTo(view.a + span * 0.2, view.b - span * 0.2); }
+    else if (e.key === '-') { zoomTo(view.a - span * 0.5, view.b + span * 0.5); }
+  });
+
+  // ---- navigator: drag window, drag grips, click to jump ----
+  var nav = document.getElementById('nav'), nd = null;
+  nav.addEventListener('pointerdown', function (e) {
+    e.stopPropagation(); e.preventDefault();
+    var r = nav.getBoundingClientRect(), x = e.clientX - r.left + G.nav.x;
+    var mode = e.target.id === 'gA' ? 'a' : e.target.id === 'gB' ? 'b' : e.target.id === 'win' ? 'move' : 'jump';
+    if (mode === 'jump') { var span = view.b - view.a, c = navY(x); clampView(c - span / 2, c + span / 2); schedule(); mode = 'move'; }
+    nd = { mode: mode, x: x, a: view.a, b: view.b, id: e.pointerId };
+    try { nav.setPointerCapture(e.pointerId); } catch (z) {}
+  });
+  nav.addEventListener('pointermove', function (e) {
+    if (!nd || e.pointerId !== nd.id) return;
+    var r = nav.getBoundingClientRect(), x = e.clientX - r.left + G.nav.x, dy = navY(x) - navY(nd.x);
+    if (nd.mode === 'move') clampView(nd.a + dy, nd.b + dy);
+    else if (nd.mode === 'a') clampView(Math.min(nd.a + dy, nd.b - MINSPAN), nd.b);
+    else { var nb = Math.max(nd.b + dy, nd.a + MINSPAN); view.a = nd.a; view.b = Math.min(DOM[1], nb); }
+    schedule();
+  });
+  nav.addEventListener('pointerup', function () { nd = null; });
+  nav.addEventListener('pointercancel', function () { nd = null; });
+  ['gA', 'gB'].forEach(function (id) {
+    document.getElementById(id).addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault(); e.stopPropagation();
+      var s = (e.key === 'ArrowRight' ? 1 : -1) * (e.shiftKey ? 100 : 20);
+      if (id === 'gA') clampView(Math.min(view.a + s, view.b - MINSPAN), view.b); else { view.b = Math.max(view.a + MINSPAN, Math.min(DOM[1], view.b + s)); }
+      schedule();
+    });
+  });
+
+  // ---- detail panel ----
+  var lastFocus = null;
+  function trackOf(id) { return TRACKS.filter(function (t) { return t.id === id; })[0]; }
+  function bandCss(t) { return 'linear-gradient(90deg,' + t.stops.map(col).join(',') + ')'; }
+  function openPanel(html) {
+    lastFocus = document.activeElement; hidePill();
+    panel.innerHTML = '<button class="close" type="button" aria-label="Zamknij">×</button>' + html;
+    panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false');
+    panel.querySelector('.close').addEventListener('click', closePanel);
+    panel.querySelector('.close').focus({ preventScroll: true });
+  }
+  function closePanel() {
+    panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true');
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true }); else tl.focus({ preventScroll: true });
+  }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function openEvent(d) {
+    var t = trackOf(d.path);
+    openPanel('<div class="band" style="background:' + bandCss(t) + '"></div>' +
+      '<div class="kicker">' + esc(t.name) + '</div><h2>' + esc(d.name) + '</h2>' +
+      '<div class="when">' + esc(d.d) + '</div><p>' + esc(d.text) + '</p><div class="src">Źródło: ' + esc(d.src) + '</div>');
+  }
+  function openList(t, list) {
+    openPanel('<div class="band" style="background:' + bandCss(t) + '"></div><div class="kicker">' + esc(t.name) + '</div>' +
+      '<h2>' + list.length + ' wpisy blisko siebie</h2><ul>' + list.map(function (d) {
+        return '<li><button type="button" data-id="' + d.id + '">' + esc(d.name) + '<small>' + esc(d.d) + '</small></button></li>';
+      }).join('') + '</ul>');
+    Array.prototype.forEach.call(panel.querySelectorAll('ul button'), function (b) {
+      b.addEventListener('click', function () { var d = DATA[+b.dataset.id]; openEvent(d); });
+    });
+  }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('open')) closePanel(); });
+  document.addEventListener('pointerdown', function (e) { if (panel.classList.contains('open') && !e.target.closest('.panel, .mk')) closePanel(); });
+
+  // ---- Featured entries (top-left) ----
+  var FEATURED = [
+    { name: 'Homer', head: 'Dusza to oddech, który odchodzi przy śmierci' },
+    { name: 'Platon', head: 'Ciało jest grobem duszy' },
+    { name: 'Arystoteles', head: 'Dusza jest formą ciała' },
+    { name: 'Tomasz z Akwinu', head: 'Człowiek to jedność duszy i ciała' },
+    { name: 'Kartezjusz', head: 'Myślę, więc jestem: dusza jako „ja”' },
+    { name: 'Katechizm, nr 362–368 i 1013', head: 'Kościół dziś: dusza duchowa, nieśmiertelna, jedna z ciałem' }
+  ].map(function (f) { f.d = DATA.filter(function (x) { return x.name === f.name; })[0]; return f; })
+   .filter(function (f) { return f.d; });
+  var fi = 0, feature = document.getElementById('feature');
+  function showFeature(i, animate) {
+    fi = (i + FEATURED.length) % FEATURED.length;
+    var f = FEATURED[fi], t = trackOf(f.d.path);
+    function fill() {
+      document.getElementById('fCount').textContent = (fi + 1) + ' / ' + FEATURED.length;
+      document.getElementById('fDate').textContent = f.d.d;
+      document.getElementById('fSub').textContent = t.name + ' · ' + f.d.name;
+      document.getElementById('fTitle').textContent = f.head;
+    }
+    if (animate && !(mq && mq.matches)) { feature.classList.add('fading'); setTimeout(function () { fill(); feature.classList.remove('fading'); }, 120); }
+    else fill();
+  }
+  document.getElementById('fPrev').addEventListener('click', function () { showFeature(fi - 1, true); });
+  document.getElementById('fNext').addEventListener('click', function () { showFeature(fi + 1, true); });
+  document.getElementById('fGo').addEventListener('click', function () {
+    var d = FEATURED[fi].d, span = Math.min(view.b - view.a, 600);
+    zoomTo(d.y - span / 2 * 0.7, d.y + span / 2 * 0.7);
+    setTimeout(function () { openEvent(d); }, 420);
+  });
+
+  // ---- Top nav: paths menu, about, sources ----
+  var pm = document.getElementById('pathsMenu'), np = document.getElementById('navPaths');
+  pm.innerHTML = TRACKS.map(function (t) {
+    var n = DATA.filter(function (d) { return d.path === t.id; }).length;
+    return '<label><input type="checkbox" id="tog-' + t.id + '" checked><i aria-hidden="true"></i>' + t.name + '<small>' + n + '</small></label>';
+  }).join('');
+  TRACKS.forEach(function (t) {
+    document.getElementById('tog-' + t.id).addEventListener('change', function (e) {
+      t.hidden = !e.target.checked; drawArt(); render();
+    });
+  });
+  np.addEventListener('click', function () { var open = pm.hidden; pm.hidden = !open; np.setAttribute('aria-expanded', String(open)); });
+
+  var ABOUT = '<div class="kicker">O projekcie</div><h2>Jak rozumieć duszę</h2>' +
+    '<p>Od Homera do Dennetta: 2800 lat sporu o to, czym jest dusza, pokazane jako trzy ścieżki, które wychodzą z jednego punktu.</p>' +
+    '<p><b>Filozofia</b> szuka odpowiedzi rozumem. <b>Pismo</b> mówi o człowieku jako całości i o zmartwychwstaniu. <b>Kościół</b>, przez Ojców i sobory, łączy obie linie w nauczaniu, które obowiązuje dziś.</p>' +
+    '<p>Każda cienka linia wychodzi z jednego punktu i kończy się kropką: to jedna osoba albo jeden dokument z jedną tezą. Wpisy bliskie w czasie układają się w pionowe kolumny. Suwak na dole wybiera okres, który widać na ścieżkach.</p>' +
+    '<div class="kicker" style="margin-top:8px">Pięć pytań, które prowadzą przez oś</div>' +
+    '<ul class="qs"><li>Czym jest dusza?</li><li>Czy jest odrębna od ciała?</li><li>Czy jest nieśmiertelna?</li><li>Czy jest materialna?</li><li>Czy „ja” w ogóle istnieje?</li></ul>';
+  var SOURCES = '<div class="kicker">Źródła</div><h2>Skąd pochodzą wpisy</h2>' +
+    '<p>Większość wpisów pochodzi z notatek z wykładów (historia filozofii, etyka, metafizyka, teoria poznania). Oznaczone są jako <b>wykład</b>.</p>' +
+    '<p>Wpisy spoza wykładów sprawdzono w źródłach zewnętrznych: <b>✅</b> potwierdzone, <b>⚠️</b> potwierdzone z korektą albo sporne w literaturze.</p>' +
+    '<p>Daty osób są przybliżone. Teksty o spornym datowaniu (orfizm, Rdz 2,7, Mt 10,28) nie stoją na osi.</p>';
+  function openText(html) { openPanel('<div class="band" style="background:linear-gradient(90deg,' + col('--f1') + ',' + col('--p1') + ',' + col('--m2') + ')"></div>' + html); }
+  ['navAbout', 'footAbout'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { openText(ABOUT); }); });
+  ['navSources', 'footSources'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { openText(SOURCES); }); });
+
+  function full() { geometry(); drawArt(); render(); }
+  var vid = document.querySelector('.scene'); if (vid) vid.addEventListener('loadedmetadata', function () { full(); });
+  window.addEventListener('resize', function () { full(); });
+  full();
+  drawIn();
+  showFeature(2, false);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(full);
+})();
+</script>
+
+</body></html>
