@@ -92,7 +92,9 @@
   .ix-row > span:last-child { text-align: right; }
   .ix-head { opacity: 0.72; }
   .ix-row .tag { color: #f3e39a; margin-left: 0.7em; }
-  #ixRow { transition: opacity .14s ease-out; }
+  #ixRow { transition: opacity .14s ease-out; pointer-events: auto; cursor: pointer; outline: none; }
+  #ixRow:hover > span:nth-child(2), #ixRow:focus-visible > span:nth-child(2) { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  #ixRow:focus-visible { background: rgba(255, 255, 255, 0.08); }
   #ixRow.fading { opacity: 0; }
   .brand { position: absolute; color: #fff; pointer-events: none; white-space: nowrap;
     font-family: "Geist Pixel Line", "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -319,7 +321,7 @@
   <div class="brand" id="brand">anima</div>
   <div class="index" id="index" aria-live="polite">
     <div class="ix-row ix-head"><span>Nr</span><span>Postać / dokument</span><span>Ścieżka</span><span>Teza</span><span>Czas</span></div>
-    <div class="ix-row" id="ixRow"></div>
+    <div class="ix-row" id="ixRow" role="button" tabindex="0" aria-label="Otwórz wpis"></div>
   </div>
   <div class="years"><div class="year" id="yA"></div><div class="year" id="yB"></div></div>
   <div id="cats"></div>
@@ -807,9 +809,17 @@
       s[1].textContent = d.name;
       if (feat) { var tg = document.createElement('span'); tg.className = 'tag'; tg.textContent = 'wyróżnione'; s[1].appendChild(tg); }
       s[2].textContent = t.name; s[3].textContent = d.text; s[4].textContent = d.d;
+      row.setAttribute('aria-label', 'Otwórz wpis: ' + d.name);
     }
     fill();   // swap in place: no fade, nothing moves
   }
+  // clicking the row (or Enter on it) opens that entry's panel
+  (function () {
+    var row = document.getElementById('ixRow');
+    function open(e) { if (ixLast) { e.stopPropagation(); openEvent(ixLast); } }
+    row.addEventListener('click', open);
+    row.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } });
+  })();
   function focusEntry(d) {
     if (current != null) {
       if (strandEls[current]) strandEls[current].classList.remove('hl');
@@ -997,7 +1007,7 @@
     });
   }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('open')) closePanel(); });
-  document.addEventListener('pointerdown', function (e) { if (panel.classList.contains('open') && !e.target.closest('.panel, .mk')) closePanel(); });
+  document.addEventListener('pointerdown', function (e) { if (panel.classList.contains('open') && !e.target.closest('.panel, .mk, #ixRow')) closePanel(); });
 
   // ---- Featured entries (top-left) ----
   var FEATURED = [
