@@ -224,15 +224,17 @@
   .feature .bar button:focus-visible, .feature .go:focus-visible, .topnav button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
   .feature .count { font-variant-numeric: tabular-nums; text-align: center; }
   .feature .date { margin-top: 12px; font-family: "Geist Pixel Line", "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: clamp(22px, 2.15vw, 34px); font-weight: 400; line-height: 1; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; }
-  .feature .sub { margin-top: 6px; font-family: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: clamp(12px, 0.9vw, 14px); font-weight: 300; line-height: 1.2; letter-spacing: 0; opacity: 0.9; text-transform: lowercase; }
+  .feature .sub { margin-top: 10px; font-family: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: clamp(12px, 0.9vw, 14px); font-weight: 300; line-height: 1.2; letter-spacing: 0; opacity: 0.9; text-transform: lowercase; }
   .feature .rule { display: none; }
   /* no shadows on any text, dots or badges */
   *, *::before, *::after { text-shadow: none !important; }
   .mk.dot::before { box-shadow: none !important; }
-  .feature h2 { margin-top: 16px !important; }
+  .feature h2 { margin-top: 10px !important; }   /* B: one even rhythm through the block */
+  /* Option A (original spacing), to revert: .feature .sub margin-top 6px; .feature h2 margin-top 16px !important;
+     .feature .go margin-top 3px; phones: .feature h2 margin-top 4px (artifact version 91) */
   .feature h2 { margin: 0; font-family: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: clamp(16px, 1.25vw, 19px); font-weight: 300; line-height: 1.2; letter-spacing: -0.01em; text-wrap: balance; }
   .feature .go {
-    justify-self: start; margin-top: 3px; display: inline-flex; align-items: baseline; gap: 8px; border: 0; background: none; padding: 0; cursor: pointer;
+    justify-self: start; margin-top: 10px; display: inline-flex; align-items: baseline; gap: 8px; border: 0; background: none; padding: 0; cursor: pointer;
     font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 11px; font-weight: 400; letter-spacing: 0.02em; text-transform: lowercase;
     text-shadow: 0 1px 3px rgba(20, 24, 60, 0.35); opacity: 0.9;
   }
