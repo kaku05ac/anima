@@ -42,6 +42,13 @@
     display: block; object-fit: cover;
   }
   @media (max-aspect-ratio: 1/1) { :root { --scene-x: 0.1; } }
+  /* dots background: the video keeps its place (the layout is measured from it) but is not shown */
+  .dotsbg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .hero[data-bg="dots"] { background: #c2c2c2; }
+  .hero[data-bg="dots"]::before { display: none; }
+  .hero[data-bg="dots"] .scene { visibility: hidden; }
+  .hero:not([data-bg="dots"]) .dotsbg { display: none; }
+  .bg-dots .brand { display: none; }   /* the "anima" label belongs to the soul in the painting */
   .scroll-cue {
     position: absolute; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
     width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
@@ -311,8 +318,10 @@
   .cat, .years .year, .eras span, .foot .mid { pointer-events: auto; cursor: text; user-select: text; -webkit-user-select: text; }
 </style>
 
-<section class="hero" aria-label="Obraz: chłopiec i jego dusza na łące">
-  <video class="scene" src="video/background.mp4" poster="images/background-poster.webp" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+<!-- BACKGROUND SWITCH: data-bg="dots" = drifting dots, data-bg="boy" = the boy and his soul on the meadow (video) -->
+<section class="hero" data-bg="dots" aria-label="Tło">
+  <video class="scene" src="video/background.mp4" poster="images/background-poster.webp" muted loop playsinline preload="none" aria-hidden="true"></video>
+  <canvas id="bg" class="dotsbg" aria-hidden="true"></canvas>
 </section>
 
 <section class="tl" id="os-czasu" tabindex="0" aria-label="Oś czasu: jak rozumieć duszę. Użyj suwaka albo strzałek, aby przesuwać czas.">
@@ -370,8 +379,9 @@
   <div class="right" hidden><button type="button" id="footAbout">O projekcie</button><button type="button" id="footSources">Źródła</button></div>
 </footer>
 
-<div class="roller centered" id="roller" role="img" aria-label="anima"></div>
-<div class="intro" id="intro"><button type="button" class="enter" id="enterBtn">enter ↵</button></div>
+<div class="roller" id="roller" role="img" aria-label="anima"></div>
+<!-- welcome screen switched off; to bring it back: add class "centered" to #roller above and restore:
+<div class="intro" id="intro"><button type="button" class="enter" id="enterBtn">enter ↵</button></div> -->
 
 <aside class="panel" id="panel" aria-hidden="true" aria-label="Szczegóły"></aside>
 
@@ -379,7 +389,9 @@
 (function () {
   var v = document.querySelector('.scene');
   var mq = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (v) { if (mq && mq.matches) v.pause(); else { var p = v.play(); if (p && p.catch) p.catch(function () {}); } }
+  var bg = (document.querySelector('.hero') || {}).dataset;
+  if (bg && bg.bg === 'dots') { document.documentElement.classList.add('bg-dots'); return; }   // dots background: no video
+  if (v) { v.preload = 'auto'; if (mq && mq.matches) v.pause(); else { var p = v.play(); if (p && p.catch) p.catch(function () {}); } }
 })();
 
 (function () {
@@ -618,8 +630,9 @@
     var rl = document.getElementById('roller'), tn2 = document.querySelector('.topnav');
     if (G.narrow) { rl.style.right = '16px'; rl.style.top = 'calc(16px + env(safe-area-inset-top, 0px))'; }
     else {
-      rl.style.right = (G.W - (G.nav.x + G.nav.w)) + 'px';
-      rl.style.top = (tn2 && tn2.style.top && tn2.style.top !== 'auto' ? tn2.style.top : '28px');
+      // just left of the starting point, vertically centred on it
+      rl.style.right = (G.W - (G.ox - (G.ns || 5) / 2 - 12)) + 'px';
+      rl.style.top = (G.yt - rl.offsetHeight / 2) + 'px';
     }
     // labels
     var cats = document.getElementById('cats'); cats.innerHTML = '';
@@ -1112,6 +1125,7 @@
   // ---- intro: Enter (or a click on "enter") clears the blur and sends the word to its corner ----
   (function () {
     var intro = document.getElementById('intro'), rl = document.getElementById('roller'), btn = document.getElementById('enterBtn'), done = false;
+    if (!intro) { drawIn(); return; }   // no welcome screen: the page starts straight away
     try { btn.focus({ preventScroll: true }); } catch (e) {}
     function reveal() {
       if (done) return; done = true;
@@ -1139,6 +1153,853 @@
   showFeature(2, false);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(full);
 })();
+</script>
+
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+// ===== Background: drifting dots (v11). Runs only when <section class="hero" data-bg="dots">. =====
+const heroEl = document.querySelector('.hero');
+if (heroEl && heroEl.dataset.bg === 'dots') {
+const THREE = await import('three');
+const { GPUComputationRenderer } = await import('three/addons/misc/GPUComputationRenderer.js');
+// ---------- settings ----------
+const QS = new URLSearchParams(location.search);
+const coarse = matchMedia('(pointer: coarse)').matches;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SIM = +QS.get('sim') || (coarse ? 96 : 160);   // dots = SIM x SIM (25,600 on desktop, 9,216 on phones)
+const SET = {
+  // Lens: the same size relationship as labs.lusion.co/about
+  // (camera 5 units back, 60 degree view, focus 3.2 units in front of the camera).
+  focus: 3.2,
+  sizeMul: 0.4,              // circle size
+  farSize: 0.32,             // extra growth of circles far behind focus (Lusion: 0.5); lower = smaller background circles
+  softMul: 0.92,             // circle softness
+  opacity: 0.35,             // strength of one dot (each dot is laid down twice); v10: 0.32, a touch more keeps the line as distinct on the darker grey
+  minSize: 1.5,              // smallest dot, device pixels
+  // Post: sharpening gives every soft dot a small crisp centre.
+  sharpness: 1.0,            // 0 = strongest, 2 = mild
+  contrast: -0.011,
+  // Mood (v10 was light and airy: background #f0f0f0 with a soft white vignette)
+  paper: 0.76,               // background brightness in the middle of the screen (0.76 = #c2c2c2); lower = gloomier
+  ink: 0.05,                 // the darkest a dot can get (0 = pure black); a touch above black is softer
+  gloom: 0.3,                // how much darker the edges of the screen get (0 = not at all)
+  // Drift
+  wind: 0.30,                // cruising speed = wind / drag (0.2 units per second)
+  drag: 1.5,
+  wander: 1.15,              // how far the drift direction swings away from left-to-right, radians
+  curl: new THREE.Vector3(0.06, 0.022, 0.022),
+  curlScale: new THREE.Vector3(0.2, 0.6, 0.2),
+  curlSpeed: 0.12,
+  depthPull: 0.03,
+  life: 240,
+  homeZ: [-0.56, 0.72],      // depth band of most dots
+  frontShare: 0.14,          // small foreground dots just behind focus that drift away and blur
+  frontZ: [1.2, 1.6],
+  recede: [0.02, 0.10],
+  speed: reduceMotion ? 0.25 : 1.0,
+};
+// The stream: part of the dots gather into it on their own and stay; it only changes when the cursor breaks it.
+const FORM = {
+  share: 0.45,               // share of dots that belong to the stream
+  pull: 2.2,                 // how firmly they are pulled into place, per second
+  formIn: 3,                 // seconds the stream takes to gather after the page loads
+  depth: 0.9,                // depth of the stream (about 4 units from the camera)
+  flow: 0.045,               // how fast dots run along the stream, stream lengths per second
+  thick: 0.18,               // stream thickness, world units (v8: 0.22; thinner = a crisper, more distinct line)
+  knots: 0.33,               // share of stream dots bunched into dense dark stretches that travel along it (v8: 0.25)
+  wave: 0.6,                 // depth wobble along the stream: crisp stretches and soft, dark ones (v8: 0.8; less = fewer faint gaps)
+  // the cursor
+  breakRadius: 0.22,         // reach of the cursor, in half screen heights (0.22 = about a ninth of the screen height)
+  scatter: 0.45,             // how far a moving cursor nudges the dots
+  loosen: 0.35,              // how much the stream lets go of nudged dots (1 = not at all, 0 = completely)
+  regrow: 0.8,               // how fast nudged dots settle back (about a second)
+  // breaking the line: sweep the cursor through it and the line swings smoothly into a new direction and shape
+  touch: 0.22,               // how close to the line the cursor has to pass, in half screen heights
+  breakAfter: 0.25,          // how far the cursor has to move through the line to break it, in half screen heights
+  cut: 0.5,                  // how far the two ends spring apart where the cursor cut through, units per second
+  swingTime: 5,              // seconds the line takes to swing and bend into its new direction and shape
+  turn: [0.8, 1.57],         // how far the new line turns from the old one, radians (about 45 to 90 degrees)
+  cooldown: 0.6,             // seconds after a swing is complete before the line can be broken again
+  glide: 2.0,                // top speed of dots travelling to their place in the line, units per second
+};
+const CURVE_N = 24;
+const CAM_Z = 5;
+
+// ---------- renderer / scene ----------
+const canvas = document.getElementById('bg');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+renderer.setSize(innerWidth, innerHeight);
+const gl = renderer.getContext();
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 20);
+camera.position.set(0, 0, CAM_Z);
+camera.updateMatrixWorld();
+const TAN = Math.tan(THREE.MathUtils.degToRad(30));
+// half size of the view at a given depth (world z)
+const halfAt = (z) => { const h = (CAM_Z - z) * TAN; return [h * camera.aspect, h]; };
+
+// ---------- shader building blocks ----------
+// 3D simplex noise (Ashima Arts / Stefan Gustavson, MIT)
+const NOISE = /* glsl */`
+vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec4 permute(vec4 x){return mod289(((x*34.0)+10.0)*x);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+float snoise(vec3 v){
+  const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);
+  vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);
+  vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g;
+  vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);
+  vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy;
+  i=mod289(i);
+  vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
+  float n_=0.142857142857; vec3 ns=n_*D.wyz-D.xzx;
+  vec4 j=p-49.0*floor(p*ns.z*ns.z);
+  vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);
+  vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);
+  vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);
+  vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0;
+  vec4 sh=-step(h,vec4(0.0));
+  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+  vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y);
+  vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);
+  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+  p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+  vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);
+  m=m*m;
+  return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+}`;
+
+// Curl of a noise vector field: a swirling flow that never bunches dots up.
+const CURL = /* glsl */`
+vec3 curlNoise(vec3 p) {
+  const float e = 0.08;
+  const vec3 O1 = vec3(0.0), O2 = vec3(31.4, 47.1, 12.9), O3 = vec3(73.3, 19.7, 88.1);
+  vec3 ex = vec3(e, 0.0, 0.0), ey = vec3(0.0, e, 0.0), ez = vec3(0.0, 0.0, e);
+  float d3dy = snoise(p + O3 + ey) - snoise(p + O3 - ey);
+  float d2dz = snoise(p + O2 + ez) - snoise(p + O2 - ez);
+  float d1dz = snoise(p + O1 + ez) - snoise(p + O1 - ez);
+  float d3dx = snoise(p + O3 + ex) - snoise(p + O3 - ex);
+  float d2dx = snoise(p + O2 + ex) - snoise(p + O2 - ex);
+  float d1dy = snoise(p + O1 + ey) - snoise(p + O1 - ey);
+  return vec3(d3dy - d2dz, d1dz - d3dx, d2dx - d1dy) / (2.0 * e);
+}`;
+
+// Hash without Sine (Dave Hoskins, MIT)
+const HASH = /* glsl */`
+vec3 hash33(vec3 p3) {
+  p3 = fract(p3 * vec3(0.1031, 0.1030, 0.0973));
+  p3 += dot(p3, p3.yxz + 33.33);
+  return fract((p3.xxy + p3.yxx) * p3.zyx);
+}`;
+
+// The edge of the dot field, seen along the drift direction.
+const FIELD = /* glsl */`
+uniform vec2 uWindDir;     // unit direction the drift blows toward (screen plane)
+uniform vec2 uHalf;        // half size of the view at the far edge of the dot volume
+float reachAlong(vec2 d) { return min(uHalf.x / max(abs(d.x), 1e-3), uHalf.y / max(abs(d.y), 1e-3)); }
+float spanAcross(vec2 n) { return abs(n.x) * uHalf.x + abs(n.y) * uHalf.y; }`;
+
+// ---------- simulation (one texel = one dot) ----------
+// position texture: xyz = position, w = remaining life (1 at birth, 0 at death)
+const POS_SHADER = /* glsl */`
+#define CURVE_N ${CURVE_N}
+uniform float uTime;
+uniform float uDelta;
+uniform float uLife;
+uniform vec3 uCurl;
+uniform vec3 uCurlScale;
+uniform float uCurlSpeed;
+uniform vec2 uRecede;
+uniform float uDepthPull;
+uniform sampler2D tSpawn;   // z = this dot's home depth, w = 1 for foreground dots
+// the stream
+uniform vec3 uCurve[CURVE_N];
+uniform float uForm;        // 0 = free, 1 = fully gathered
+uniform float uShare;
+uniform float uPull;
+uniform float uFlowPhase;
+uniform float uFlowPrev;
+uniform float uWave;
+uniform vec4 uShape;        // x: thickness at the head, y: at the tail, z: taper both ends, w: seed
+uniform float uKnots;       // share of stream dots in dense knots
+uniform float uGlide;       // top speed of dots travelling to their place in the stream
+${NOISE}
+${CURL}
+${HASH}
+${FIELD}
+
+vec3 curveAt(float u, out vec3 tangent) {
+  float f = clamp(u, 0.0, 1.0) * float(CURVE_N - 1);
+  int i = int(min(floor(f), float(CURVE_N - 2)));
+  vec3 a = uCurve[i], b = uCurve[i + 1];
+  tangent = b - a;
+  tangent = dot(tangent, tangent) > 1e-10 ? normalize(tangent) : vec3(1.0, 0.0, 0.0);
+  return mix(a, b, f - float(i));
+}
+
+// this dot's place along the stream before the flow moves it on
+float streamSlot(vec2 uv, vec3 id) {
+  vec3 k = hash33(vec3(uv * 37.0, 2.2));
+  if (k.x < uKnots) {
+    // bunched into one of three dense stretches spread along the stream
+    float g = sqrt(-2.0 * log(max(k.y, 1e-4))) * cos(6.2832 * k.z);
+    return fract(floor(id.z * 3.0) / 3.0 + uShape.w * 0.137 + g * 0.045);
+  }
+  return id.y;
+}
+
+// where this dot sits inside the stream
+vec3 streamTarget(vec2 uv, float u, bool inKnot) {
+  vec3 tan;
+  vec3 c = curveAt(u, tan);
+  vec3 side = vec3(-tan.y, tan.x, 0.0);
+  side = dot(side, side) > 1e-10 ? normalize(side) : vec3(0.0, 1.0, 0.0);
+  vec3 g = hash33(vec3(uv * 211.0, 4.4));
+  float r = sqrt(-2.0 * log(max(g.x, 1e-4)));
+  float o1 = r * cos(6.2832 * g.y), o2 = r * sin(6.2832 * g.y);
+  float halo = 0.6 + 1.8 * pow(g.z, 4.0);                 // most dots hug the core, a few float around it
+  float th = mix(uShape.x, uShape.y, u);
+  th *= mix(1.0, smoothstep(0.0, 0.1, u) * smoothstep(1.0, 0.9, u), uShape.z);
+  th *= inKnot ? 0.8 : 0.75 + 0.25 * sin(u * 23.0 + uShape.w);
+  float wobble = uWave * sin(u * 9.0 + uShape.w * 1.7);    // depth changes: crisp parts and soft parts
+  return c + side * o1 * th * halo + vec3(0.0, 0.0, o2 * th * 0.8 * halo + wobble);
+}
+
+// reborn just outside the view, on the side the drift comes from
+vec3 spawn(vec2 uv, vec4 S) {
+  vec3 h = hash33(vec3(uv * 1024.0, uTime * 61.7));
+  vec2 d = uWindDir, n = vec2(-d.y, d.x);
+  vec2 xy = -d * (reachAlong(d) + 0.2 + h.x * 2.5) + n * (h.y * 2.0 - 1.0) * (spanAcross(n) + 0.5);
+  float z = S.w > 0.5 ? S.z : S.z + (h.z - 0.5) * 0.3;
+  return vec3(xy, z);
+}
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / resolution.xy;
+  vec4 P = texture2D(tPos, uv);
+  vec4 V = texture2D(tVel, uv);
+  vec4 S = texture2D(tSpawn, uv);
+  vec3 r = hash33(vec3(uv * 91.0, 5.0));
+  vec3 id = hash33(vec3(uv * 517.0, 9.1));
+  // how strongly this dot is held by the stream: members only, and not while knocked loose
+  float w = id.x < uShare ? uForm * clamp(V.w, 0.0, 1.0) : 0.0;
+  bool inKnot = hash33(vec3(uv * 37.0, 2.2)).x < uKnots;
+  float slot = streamSlot(uv, id);
+  float u = fract(slot + uFlowPhase);
+  float uPrev = fract(slot + uFlowPrev);
+
+  vec3 p = P.xyz + V.xyz * uDelta;
+  p += curlNoise(p * uCurlScale + vec3(0.0, 0.0, uTime * uCurlSpeed)) * uCurl * uDelta;
+  if (S.w > 0.5) p.z -= mix(uRecede.x, uRecede.y, r.x) * uDelta;   // foreground dots drift away and blur
+  else p.z += (S.z - p.z) * (1.0 - exp(-uDepthPull * uDelta));     // others keep to their depth layer
+
+  if (w > 0.001) {
+    vec3 target = streamTarget(uv, u, inKnot);
+    bool wrapped = u < uPrev - 0.5;
+    if (wrapped && (w > 0.9 || distance(p.xy, uCurve[CURVE_N - 1].xy) < 1.2)) p = target;   // ran off the end (off-screen): start again
+    else {
+      vec3 move = (target - p) * (1.0 - exp(-uPull * w * uDelta));  // pulled into place (or back into place)
+      float len = length(move), cap = uGlide * uDelta;
+      p += len > cap ? move * (cap / len) : move;                    // dots far from their place glide over calmly
+    }
+  }
+
+  float life = P.w - uDelta / (uLife * mix(0.6, 1.4, r.y));
+  vec2 d = uWindDir, n = vec2(-d.y, d.x);
+  float along = dot(p.xy, d), reach = reachAlong(d);
+  bool gone = along > reach + 1.5 || along < -(reach + 3.5) || abs(dot(p.xy, n)) > spanAcross(n) + 2.5 || abs(p.z) > 2.0;
+  if (w > 0.5) gone = abs(p.z) > 2.0;
+  if (life <= 0.0 || gone) {
+    if (w <= 0.5) p = spawn(uv, S);                              // free dots are reborn off-screen, upwind
+    else if (gone) p = streamTarget(uv, u, inKnot);              // a held dot knocked far away rejoins the stream
+    life = 1.0;                                                  // (a held dot whose time is up just carries on: no jump)
+  }
+  gl_FragColor = vec4(p, life);
+}`;
+
+// velocity texture: xyz = drift with drag plus cursor nudges, w = hold (1 = held by the stream, lower = loosened by the cursor)
+const VEL_SHADER = /* glsl */`
+uniform float uDelta;
+uniform float uWind;
+uniform float uDrag;
+uniform vec2 uWindDir;
+uniform mat4 uViewProj;
+uniform vec2 uMouse;       // pointer position, NDC
+uniform vec3 uMouseVel;    // pointer velocity on the stream plane, world units per second
+uniform float uAspect;
+uniform float uRadius;     // cursor reach, in NDC height units
+uniform float uScatter;
+uniform float uLoosen;
+uniform float uRegrow;
+uniform float uBurst;      // non-zero for one step only: the cursor has just cut through the line
+uniform float uShare;
+${HASH}
+void main() {
+  vec2 uv = gl_FragCoord.xy / resolution.xy;
+  vec4 P = texture2D(tPos, uv);
+  vec4 V = texture2D(tVel, uv);
+  vec3 v = V.xyz;
+  float hold = min(1.0, V.w + uRegrow * uDelta);              // nudged dots settle back
+  vec3 cruise = vec3(uWindDir * (uWind / uDrag), 0.0);
+  if (P.w >= 1.0) { v = cruise; hold = 1.0; }                 // just reborn
+  v = cruise + (v - cruise) * exp(-uDrag * uDelta);
+
+  // a moving cursor gently nudges nearby dots along its path (a little outward too)
+  // and loosens the stream's hold on them for a moment, so it ripples and then settles
+  vec4 c = uViewProj * vec4(P.xyz, 1.0);
+  vec2 d = (c.xy / c.w - uMouse) * vec2(uAspect, 1.0);
+  float near = exp(-dot(d, d) / (uRadius * uRadius));
+  float speed = length(uMouseVel);
+  float hit = near * smoothstep(0.05, 1.0, speed);
+  if (hit > 0.001) {
+    vec3 h = hash33(vec3(uv * 313.0, 1.7));
+    vec2 out2 = dot(d, d) > 1e-8 ? normalize(d) : vec2(h.x - 0.5, h.y - 0.5);
+    vec3 nudge = uMouseVel * (0.7 + 0.6 * h.z) + vec3(out2 * 0.25, (h.x - 0.5) * 0.5) * speed;
+    v += nudge * uScatter * hit * min(uDelta * 8.0, 1.0);
+    hold = min(hold, mix(hold, uLoosen, clamp(hit * uDelta * 12.0, 0.0, 1.0)));
+  }
+
+  // where the cursor cut through, the two ends spring apart a little and the line lets go there
+  // for a moment; the rest of the line stays whole and swings into its new shape
+  if (uBurst > 0.0 && hash33(vec3(uv * 517.0, 9.1)).x < uShare) {
+    float nearCut = exp(-dot(d, d) / (4.0 * uRadius * uRadius));
+    vec3 hb = hash33(vec3(uv * 733.0, 3.3));
+    vec2 away = dot(d, d) > 1e-8 ? normalize(d) : normalize(hb.xy - 0.5 + 1e-4);
+    v += vec3(away, (hb.z - 0.5) * 0.6) * uBurst * (0.6 + 0.8 * hb.x) * nearCut;
+    hold = min(hold, mix(hold, uLoosen, nearCut));
+  }
+  gl_FragColor = vec4(v, hold);
+}`;
+
+// ---------- dots ----------
+// Size and softness both grow with distance from the focus plane, much faster behind it.
+// Each dot is a cone: blurred dots are wide, faint and pointed, so the sharpening pass
+// later gives every one of them a small darker centre.
+const DOT_VS = /* glsl */`
+uniform sampler2D tPos;
+uniform float uFocus;
+uniform float uSizeMul;
+uniform float uFarSize;
+uniform float uSoftMul;
+uniform float uOpacity;
+uniform float uResY;
+uniform float uMinSize;
+uniform float uMaxSize;
+attribute vec2 aRef;
+varying float vSoft;
+varying float vAlpha;
+void main() {
+  vec4 P = texture2D(tPos, aRef);
+  vec4 mv = modelViewMatrix * vec4(P.xyz, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float dist = -mv.z;
+  float dz = dist - uFocus;
+  float behind = pow(max(dz, 0.0), 2.5);
+  float sizeBlur = 0.3 * abs(dz) + uFarSize * behind;
+  float softBlur = 0.3 * abs(dz) + 0.5 * behind;
+  float born = smoothstep(0.0, 0.008, P.w) * (1.0 - smoothstep(0.992, 1.0, P.w));   // grow in, shrink out
+  float size = sizeBlur * 200.0 * uSizeMul / max(dist, 0.1) * uResY / 1280.0;
+  gl_PointSize = clamp(size, uMinSize, uMaxSize) * born;
+  vSoft = softBlur * uSoftMul * 10.0;
+  vAlpha = uOpacity;
+}`;
+
+const DOT_FS = /* glsl */`
+varying float vSoft;
+varying float vAlpha;
+void main() {
+  float r = length(gl_PointCoord * 2.0 - 1.0);                       // 0 centre, 1 rim
+  float cone = clamp((1.0 - r) / (vSoft + fwidth(r)), 0.0, 1.0);
+  float a = vAlpha * cone;
+  a = a * (2.0 - a);                                                 // laid down twice
+  gl_FragColor = vec4(0.0, 0.0, 0.0, a);
+}`;
+
+const N = SIM * SIM;
+const ref = new Float32Array(N * 2);
+const spawnData = new Float32Array(N * 4);
+const rand = (a, b) => a + Math.random() * (b - a);
+const gauss = () => Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(2 * Math.PI * Math.random());
+for (let i = 0; i < N; i++) {
+  ref[i * 2] = ((i % SIM) + 0.5) / SIM;
+  ref[i * 2 + 1] = (Math.floor(i / SIM) + 0.5) / SIM;
+  const front = Math.random() < SET.frontShare;
+  spawnData[i * 4 + 2] = front ? rand(SET.frontZ[0], SET.frontZ[1]) : rand(SET.homeZ[0], SET.homeZ[1]);
+  spawnData[i * 4 + 3] = front ? 1 : 0;
+}
+const spawnTex = new THREE.DataTexture(spawnData, SIM, SIM, THREE.RGBAFormat, THREE.FloatType);
+spawnTex.needsUpdate = true;
+
+const geo = new THREE.BufferGeometry();
+geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+geo.setAttribute('aRef', new THREE.BufferAttribute(ref, 2));
+const dotMat = new THREE.ShaderMaterial({
+  uniforms: {
+    tPos: { value: null },
+    uFocus: { value: SET.focus },
+    uSizeMul: { value: SET.sizeMul },
+    uFarSize: { value: SET.farSize },
+    uSoftMul: { value: SET.softMul },
+    uOpacity: { value: SET.opacity },
+    uResY: { value: 1 },
+    uMinSize: { value: SET.minSize },
+    uMaxSize: { value: gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1] },
+  },
+  vertexShader: DOT_VS,
+  fragmentShader: DOT_FS,
+  transparent: true,
+  depthTest: false,
+  depthWrite: false,
+});
+const dots = new THREE.Points(geo, dotMat);
+dots.frustumCulled = false;
+scene.add(dots);
+
+// ---------- post: sharpen + grade ----------
+// Dots are drawn black onto white in an 8-bit buffer (the faintest outer part of each dot
+// rounds away, which keeps circles small and the background light), then sharpened and graded.
+const sceneRT = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: false });
+const postMat = new THREE.ShaderMaterial({
+  uniforms: {
+    tScene: { value: sceneRT.texture },
+    uRes: { value: new THREE.Vector2(1, 1) },
+    uCon: { value: Math.pow(2, -SET.sharpness) },
+    uContrast: { value: SET.contrast },
+    uPaper: { value: SET.paper },
+    uInk: { value: SET.ink },
+    uGloom: { value: SET.gloom },
+    uVigAspect: { value: new THREE.Vector2(0.8, 0.6) },
+    uSeed: { value: 0 },
+  },
+  vertexShader: /* glsl */`void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+  fragmentShader: /* glsl */`
+    uniform sampler2D tScene;
+    uniform vec2 uRes;
+    uniform float uCon;
+    uniform float uContrast;
+    uniform float uPaper;
+    uniform float uInk;
+    uniform float uGloom;
+    uniform vec2 uVigAspect;
+    uniform float uSeed;
+    vec3 tap(vec2 o) { return texture2D(tScene, (gl_FragCoord.xy + o) / uRes).rgb; }
+    float hash13(vec3 p3) { p3 = fract(p3 * 0.1031); p3 += dot(p3, p3.zyx + 31.32); return fract((p3.x + p3.y) * p3.z); }
+    void main() {
+      // contrast-adaptive sharpening (after AMD FidelityFX FSR 1.0 RCAS, MIT)
+      vec3 n = tap(vec2(0.0, 1.0)), w = tap(vec2(-1.0, 0.0)), c = tap(vec2(0.0)), e = tap(vec2(1.0, 0.0)), s = tap(vec2(0.0, -1.0));
+      vec3 lo = min(min(n, s), min(w, e));
+      vec3 hi = max(max(n, s), max(w, e));
+      vec3 lim = max(-lo / (4.0 * max(hi, vec3(1e-4))), (1.0 - hi) / (4.0 * lo - 4.0));
+      float lobe = clamp(max(lim.r, max(lim.g, lim.b)), -0.1875, 0.0) * uCon;
+      vec3 col = (lobe * (n + w + e + s) + c) / (4.0 * lobe + 1.0);
+      // grade: slight contrast, then the mood: the white paper becomes a dim grey, black ink a soft
+      // near-black, and the edges of the screen fall off into shadow; dither
+      col = 0.5 + (1.0 + uContrast) * (col - 0.5);
+      col = uInk + (uPaper - uInk) * col;
+      vec2 uv = gl_FragCoord.xy / uRes;
+      col *= 1.0 - uGloom * smoothstep(0.15, 1.1, length((uv - 0.5) * uVigAspect) * 2.0);
+      col += hash13(vec3(gl_FragCoord.xy, uSeed)) / 255.0;
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+  depthTest: false,
+  depthWrite: false,
+});
+const postScene = new THREE.Scene();
+const postQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), postMat);
+postQuad.frustumCulled = false;
+postScene.add(postQuad);
+const postCam = new THREE.Camera();
+
+function updateSize() {
+  const s = renderer.getDrawingBufferSize(new THREE.Vector2());
+  sceneRT.setSize(s.x, s.y);
+  postMat.uniforms.uRes.value.copy(s);
+  const len = Math.hypot(s.x, s.y);
+  postMat.uniforms.uVigAspect.value.set(s.x / len, s.y / len);
+  dotMat.uniforms.uResY.value = s.y;
+}
+updateSize();
+
+// ---------- GPU simulation ----------
+const gpu = new GPUComputationRenderer(SIM, SIM, renderer);
+const pos0 = gpu.createTexture();
+const vel0 = gpu.createTexture();
+const pd = pos0.image.data, vd = vel0.image.data;
+const farHalf = halfAt(-2);
+const cruise = SET.wind / SET.drag;
+for (let i = 0; i < N; i++) {
+  // start spread over the whole field
+  pd[i * 4] = rand(-farHalf[0], farHalf[0]);
+  pd[i * 4 + 1] = rand(-farHalf[1], farHalf[1]);
+  pd[i * 4 + 2] = spawnData[i * 4 + 3] > 0.5 ? spawnData[i * 4 + 2] - Math.random() * 1.2
+                                             : Math.max(-1.1, Math.min(1.1, spawnData[i * 4 + 2] + 0.35 * gauss()));
+  pd[i * 4 + 3] = Math.random();
+  vd[i * 4] = cruise;
+  vd[i * 4 + 3] = 1;                       // everyone starts held
+}
+const posVar = gpu.addVariable('tPos', POS_SHADER, pos0);
+const velVar = gpu.addVariable('tVel', VEL_SHADER, vel0);
+gpu.setVariableDependencies(posVar, [posVar, velVar]);
+gpu.setVariableDependencies(velVar, [posVar, velVar]);
+const pu = posVar.material.uniforms;
+const vu = velVar.material.uniforms;
+const windDir = new THREE.Vector2(1, 0);
+const fieldHalf = new THREE.Vector2(farHalf[0], farHalf[1]);
+const curvePts = Array.from({ length: CURVE_N }, () => new THREE.Vector3(0, 0, FORM.depth));
+Object.assign(pu, {
+  uTime: { value: 0 },
+  uDelta: { value: 0 },
+  uLife: { value: SET.life },
+  uCurl: { value: SET.curl },
+  uCurlScale: { value: SET.curlScale },
+  uCurlSpeed: { value: SET.curlSpeed },
+  uRecede: { value: new THREE.Vector2(SET.recede[0], SET.recede[1]) },
+  uDepthPull: { value: SET.depthPull },
+  tSpawn: { value: spawnTex },
+  uWindDir: { value: windDir },
+  uHalf: { value: fieldHalf },
+  uCurve: { value: curvePts },
+  uForm: { value: 0 },
+  uShare: { value: FORM.share },
+  uPull: { value: FORM.pull },
+  uFlowPhase: { value: 0 },
+  uFlowPrev: { value: 0 },
+  uWave: { value: FORM.wave },
+  uShape: { value: new THREE.Vector4(FORM.thick, FORM.thick, 1, rand(0, 100)) },
+  uKnots: { value: FORM.knots },
+  uGlide: { value: FORM.glide },
+});
+Object.assign(vu, {
+  uDelta: { value: 0 },
+  uWind: { value: SET.wind },
+  uDrag: { value: SET.drag },
+  uWindDir: { value: windDir },
+  uViewProj: { value: new THREE.Matrix4() },
+  uMouse: { value: new THREE.Vector2(9, 9) },
+  uMouseVel: { value: new THREE.Vector3() },
+  uAspect: { value: camera.aspect },
+  uRadius: { value: FORM.breakRadius },
+  uScatter: { value: FORM.scatter },
+  uLoosen: { value: FORM.loosen },
+  uRegrow: { value: FORM.regrow },
+  uBurst: { value: 0 },
+  uShare: { value: FORM.share },
+});
+const simError = gpu.init();
+if (simError) { console.error(simError); dots.visible = false; }   // fall back to the plain background
+
+// ---------- the stream's shape ----------
+// A line is a few numbers: its direction and how it bends. From those it is drawn as a long sweeping curve
+// across the screen (CURVE_N points). Because a shape is just a few numbers, one shape can turn into another
+// smoothly: the line swings round and bends into its new form, without any jumps.
+// kind: 'arc' = one long bow, 'S' = a wave one way then the other, 'gentle' = an almost straight sweep
+const KINDS = ['arc', 'S', 'gentle'];
+function randomShape(angle, kind) {
+  let o0, o3, b1, b2;                       // end offsets and bends, as shares of the room across the line
+  if (kind === 'arc') {
+    o0 = rand(-0.3, 0.3); o3 = rand(-0.3, 0.3);
+    const s = o0 + o3 > 0 ? -1 : 1;         // bow toward the middle of the screen so it stays in view
+    b1 = s * rand(0.6, 1.0); b2 = s * rand(0.6, 1.0);
+  } else if (kind === 'S') {
+    o0 = rand(-0.3, 0.3); o3 = rand(-0.3, 0.3);
+    const s = Math.random() < 0.5 ? -1 : 1;
+    b1 = s * rand(1.2, 1.7); b2 = -s * rand(1.2, 1.7);
+  } else {
+    o0 = rand(-0.5, 0.5); o3 = rand(-0.5, 0.5);
+    b1 = rand(-0.25, 0.25); b2 = rand(-0.25, 0.25);
+  }
+  return { angle, kind, o0, o3, b1, b2 };
+}
+function shapePoints(sh) {
+  const [hw, hh] = halfAt(FORM.depth);
+  const d = [Math.cos(sh.angle), Math.sin(sh.angle)], n = [-d[1], d[0]];
+  const reach = Math.min(hw / Math.max(Math.abs(d[0]), 1e-3), hh / Math.max(Math.abs(d[1]), 1e-3)) * 1.3;
+  const m = Math.min(Math.abs(n[0]) * hw + Math.abs(n[1]) * hh, hh);   // room across the line (narrow on phones held upright)
+  const o0 = sh.o0 * m, o3 = sh.o3 * m, b1 = sh.b1 * m, b2 = sh.b2 * m;
+  const P0 = [-d[0] * reach + n[0] * o0, -d[1] * reach + n[1] * o0];
+  const P3 = [d[0] * reach + n[0] * o3, d[1] * reach + n[1] * o3];
+  const P1 = [P0[0] + (P3[0] - P0[0]) * 0.33 + n[0] * b1, P0[1] + (P3[1] - P0[1]) * 0.33 + n[1] * b1];
+  const P2 = [P0[0] + (P3[0] - P0[0]) * 0.66 + n[0] * b2, P0[1] + (P3[1] - P0[1]) * 0.66 + n[1] * b2];
+  const poly = [], lens = [0];
+  for (let k = 0; k <= 120; k++) {
+    const t = k / 120, a = (1 - t) ** 3, b = 3 * (1 - t) ** 2 * t, c = 3 * (1 - t) * t * t, e = t ** 3;
+    poly.push([a * P0[0] + b * P1[0] + c * P2[0] + e * P3[0], a * P0[1] + b * P1[1] + c * P2[1] + e * P3[1]]);
+    if (k) lens.push(lens[k - 1] + Math.hypot(poly[k][0] - poly[k - 1][0], poly[k][1] - poly[k - 1][1]));
+  }
+  // evenly spaced along the length
+  const total = lens[lens.length - 1], out = [];
+  let k = 1;
+  for (let i = 0; i < CURVE_N; i++) {
+    const s = (i / (CURVE_N - 1)) * total;
+    while (k < poly.length - 1 && lens[k] < s) k++;
+    const t = (s - lens[k - 1]) / Math.max(lens[k] - lens[k - 1], 1e-6);
+    out.push([poly[k - 1][0] + (poly[k][0] - poly[k - 1][0]) * t, poly[k - 1][1] + (poly[k][1] - poly[k - 1][1]) * t]);
+  }
+  return out;
+}
+// share of the line that is on screen as it is drawn, with its depth wobble (the ends always run off it)
+const onScreenTmp = new THREE.Vector3();
+function onScreen(pts, seed) {
+  let n = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const u = i / (pts.length - 1);
+    onScreenTmp.set(pts[i][0], pts[i][1], FORM.depth + FORM.wave * Math.sin(u * 9 + seed * 1.7)).project(camera);
+    if (Math.abs(onScreenTmp.x) < 0.95 && Math.abs(onScreenTmp.y) < 0.95) n++;
+  }
+  return n / pts.length;
+}
+// a few tries at a direction and kind, keeping the one that sits best in view
+function pickShape(angle, kind) {
+  let best = null, bestShare = -1;
+  for (let i = 0; i < 12; i++) {
+    const sh = randomShape(angle, kind), share = onScreen(shapePoints(sh), pu.uShape.value.w);
+    if (share > bestShare) { best = sh; bestShare = share; }
+    if (share >= 0.66) break;
+  }
+  return best;
+}
+const pickKind = (not) => { const k = KINDS.filter(x => x !== not); return k[Math.floor(Math.random() * k.length)]; };
+
+let shapeNow = null, shapeFrom = null, shapeTo = null, swingT = 1;
+function drawShape(sh) {
+  const pts = shapePoints(sh);
+  for (let i = 0; i < CURVE_N; i++) curvePts[i].set(pts[i][0], pts[i][1], FORM.depth);
+}
+function setShape(sh) {
+  shapeNow = sh; shapeFrom = null; shapeTo = null; swingT = 1;
+  drawShape(sh);
+}
+// swing and bend smoothly from the current shape into a new one
+function startSwing(sh) {
+  shapeFrom = { ...shapeNow };
+  shapeTo = sh;
+  swingT = 0;
+}
+function applySwing(dt) {
+  if (!shapeTo) return;
+  swingT = Math.min(1, swingT + dt / FORM.swingTime);
+  const e = 0.5 - 0.5 * Math.cos(Math.PI * swingT);          // starts gently, ends gently
+  const f = shapeFrom, t = shapeTo, mix = (a, b) => a + (b - a) * e;
+  shapeNow = { angle: f.angle + wrapAngle(t.angle - f.angle) * e, kind: t.kind,
+    o0: mix(f.o0, t.o0), o3: mix(f.o3, t.o3), b1: mix(f.b1, t.b1), b2: mix(f.b2, t.b2) };
+  drawShape(shapeNow);
+  if (swingT >= 1) { shapeNow = { ...t }; shapeFrom = null; shapeTo = null; }
+}
+
+// ---------- behaviour ----------
+// drift direction: wanders slowly and irregularly, mostly coming in from the left
+function windAngle(t) {
+  return SET.wander * (0.5 * Math.sin(0.052 * t + 0.4) + 0.3 * Math.sin(0.113 * t + 2.3) + 0.2 * Math.sin(0.191 * t + 4.1));
+}
+let simClock = 0, flowPhase = 0, form = 0, formOn = false;
+// breaking the line: how much the cursor has disturbed it, and when it can next be broken
+let disruption = 0, canBreakAt = 0, breaks = 0;
+const pointer = { ndc: new THREE.Vector2(9, 9), active: false };
+const raycaster = new THREE.Raycaster();
+const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -FORM.depth);
+const mNow = new THREE.Vector3(), mPrev = new THREE.Vector3(), mVel = new THREE.Vector3(), mStep = new THREE.Vector3();
+let hasPrev = false;
+const lastNdc = new THREE.Vector2();
+let hasLast = false;
+const look = new THREE.Vector2();
+const offscreen = new THREE.Vector2(9, 9);
+const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+// the line as it is drawn on screen (with its depth wobble), in screen coordinates (-1..1)
+const lineScreen = Array.from({ length: CURVE_N }, () => new THREE.Vector2());
+const tmp3 = new THREE.Vector3();
+function projectLine() {
+  const seed = pu.uShape.value.w;
+  for (let i = 0; i < CURVE_N; i++) {
+    const u = i / (CURVE_N - 1);
+    tmp3.set(curvePts[i].x, curvePts[i].y, FORM.depth + FORM.wave * Math.sin(u * 9 + seed * 1.7)).project(camera);
+    lineScreen[i].set(tmp3.x, tmp3.y);
+  }
+}
+// how far the cursor is from the line on screen, in half screen heights
+function lineDistance(ndc) {
+  projectLine();
+  const asp = camera.aspect, px = ndc.x * asp, py = ndc.y;
+  let best = Infinity;
+  for (let i = 0; i < CURVE_N - 1; i++) {
+    const ax = lineScreen[i].x * asp, ay = lineScreen[i].y;
+    const ex = lineScreen[i + 1].x * asp - ax, ey = lineScreen[i + 1].y - ay, L2 = ex * ex + ey * ey;
+    const t = L2 > 1e-12 ? Math.min(1, Math.max(0, ((px - ax) * ex + (py - ay) * ey) / L2)) : 0;
+    best = Math.min(best, Math.hypot(px - ax - ex * t, py - ay - ey * t));
+  }
+  return best;
+}
+
+// after a break: a clearly different direction (turned 45 to 90 degrees) and a different kind of bend.
+// The turn is never more than 90 degrees, so the line swings round rather than flipping over.
+function newShape() {
+  const cur = shapeNow, wind = windAngle(simClock), turn = rand(FORM.turn[0], FORM.turn[1]);
+  let a = cur.angle + (Math.random() < 0.5 ? -turn : turn);
+  const b = 2 * cur.angle - a;                                   // the same turn the other way
+  // keep the flow with or across the drift rather than straight against it
+  if (Math.abs(wrapAngle(a - wind)) > 2.2 && Math.abs(wrapAngle(b - wind)) < Math.abs(wrapAngle(a - wind))) a = b;
+  return pickShape(wrapAngle(a), pickKind(cur.kind));
+}
+
+// first shape
+setShape(pickShape(windAngle(0) + rand(-0.55, 0.55), KINDS[Math.floor(Math.random() * KINDS.length)]));
+
+function step(rawDt) {
+  const dt = rawDt * SET.speed;
+  simClock += dt;
+
+  const a = windAngle(simClock);
+  windDir.set(Math.cos(a), Math.sin(a));
+
+  // a hint of camera parallax toward the pointer
+  look.x += ((pointer.active ? pointer.ndc.x : 0) * 0.12 - look.x) * 0.03;
+  look.y += ((pointer.active ? pointer.ndc.y : 0) * 0.08 - look.y) * 0.03;
+  camera.position.set(look.x, look.y, CAM_Z);
+  camera.lookAt(look.x * 0.5, look.y * 0.5, 0);
+  camera.updateMatrixWorld();
+
+  // pointer velocity on the stream plane: a moving cursor breaks the stream apart
+  let onPlane = false;
+  if (pointer.active) {
+    raycaster.setFromCamera(pointer.ndc, camera);
+    onPlane = !!raycaster.ray.intersectPlane(plane, mNow);
+  }
+  if (onPlane) {
+    if (hasPrev && rawDt > 0) mVel.lerp(mStep.subVectors(mNow, mPrev).divideScalar(Math.max(rawDt, 1 / 120)), 0.35);
+    mPrev.copy(mNow);
+    hasPrev = true;
+  } else {
+    hasPrev = false;
+  }
+  mVel.multiplyScalar(Math.exp(-4 * rawDt));   // a cursor that stops stops breaking things
+
+  // sweeping the cursor through the formed line breaks it
+  let moved = 0;
+  if (pointer.active) {
+    if (hasLast) moved = Math.hypot((pointer.ndc.x - lastNdc.x) * camera.aspect, pointer.ndc.y - lastNdc.y);
+    lastNdc.copy(pointer.ndc);
+    hasLast = true;
+  } else {
+    hasLast = false;
+  }
+  disruption *= Math.exp(-dt / 2);
+  if (!shapeTo && form > 0.9 && simClock >= canBreakAt && moved > 0 && lineDistance(pointer.ndc) < FORM.touch) {
+    disruption += moved * smooth(0.05, 1.0, mVel.length());   // slow drifts of the cursor hardly count
+  }
+  let burst = 0;
+  if (disruption > FORM.breakAfter) {
+    disruption = 0; burst = FORM.cut; breaks++;
+    startSwing(newShape());
+  }
+
+  // the stream forms by itself and keeps its shape; only a break makes it swing into a new one
+  if (formOn) form += (1 - form) * (1 - Math.exp(-dt / (FORM.formIn / 3)));
+  const wasSwinging = !!shapeTo;
+  applySwing(dt);
+  if (wasSwinging && !shapeTo) canBreakAt = simClock + FORM.cooldown;
+  pu.uFlowPrev.value = flowPhase;
+  flowPhase = (flowPhase + FORM.flow * dt) % 1000;
+  pu.uFlowPhase.value = flowPhase;
+  pu.uForm.value = form;
+
+  vu.uMouse.value.copy(pointer.active ? pointer.ndc : offscreen);
+  vu.uMouseVel.value.copy(mVel).clampLength(0, 4);
+  vu.uBurst.value = burst;
+  vu.uAspect.value = camera.aspect;
+  vu.uViewProj.value.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+
+  if (!simError) {
+    pu.uTime.value = simClock;
+    pu.uDelta.value = dt;
+    vu.uDelta.value = dt;
+    gpu.compute();
+  }
+}
+
+addEventListener('pointermove', (e) => {
+  pointer.ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  pointer.active = true;
+}, { passive: true });
+document.documentElement.addEventListener('pointerleave', () => { pointer.active = false; });
+addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') pointer.active = false; });
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  const h = halfAt(-2);
+  fieldHalf.set(h[0], h[1]);
+  updateSize();
+  if (!shapeTo) drawShape(shapeNow);   // refit the line to the new screen shape (a swing refits itself)
+});
+
+// let the drift settle in, then the stream gathers on screen
+if (!simError) for (let i = 0; i < 150; i++) step(1 / 30);
+formOn = true;
+
+// ---------- loop ----------
+const clock = new THREE.Clock();
+function render() {
+  dotMat.uniforms.tPos.value = gpu.getCurrentRenderTarget(posVar).texture;
+  renderer.setRenderTarget(sceneRT);
+  renderer.setClearColor(0xffffff, 1);
+  renderer.render(scene, camera);
+  renderer.setRenderTarget(null);
+  postMat.uniforms.uSeed.value = (postMat.uniforms.uSeed.value + 1.618) % 1000;
+  renderer.render(postScene, postCam);
+}
+
+// test hooks
+window.__v3 = { frames: 0, dots: N, simError };
+window.__v7 = {
+  state: () => ({ form: +form.toFixed(3), swing: +swingT.toFixed(3), windAngle: +windAngle(simClock).toFixed(2), simClock: +simClock.toFixed(1),
+    phase: shapeTo ? 'swing' : 'none', lineAngle: +shapeNow.angle.toFixed(3), lineKind: (shapeTo || shapeNow).kind,
+    targetAngle: +(shapeTo || shapeNow).angle.toFixed(3), disruption: +disruption.toFixed(3), breaks, shape: pu.uShape.value.toArray().map(v => +v.toFixed(3)) }),
+  dots() {                              // every dot's position and whether it belongs to the line (for motion checks)
+    const buf = new Float32Array(N * 4);
+    renderer.readRenderTargetPixels(gpu.getCurrentRenderTarget(posVar), 0, 0, SIM, SIM, buf);
+    return Array.from(buf);
+  },
+  lineNdc() { projectLine(); return lineScreen.map(p => [+p.x.toFixed(4), +p.y.toFixed(4)]); },
+  lineDistance: (x, y) => lineDistance(new THREE.Vector2(x, y)),
+  release() { pointer.active = false; },
+  advance(seconds) { for (let t = 0; t < seconds; t += 1 / 30) step(1 / 30); },
+  mousePath(points, seconds) {          // drive the cursor along NDC points with simulated time
+    const steps = Math.round(seconds * 30);
+    for (let k = 0; k <= steps; k++) {
+      const f = (k / steps) * (points.length - 1), i = Math.min(Math.floor(f), points.length - 2), t = f - i;
+      pointer.ndc.set(points[i][0] + (points[i + 1][0] - points[i][0]) * t, points[i][1] + (points[i + 1][1] - points[i][1]) * t);
+      pointer.active = true;
+      step(1 / 30);
+    }
+  },
+  held() {                              // share of stream dots currently held
+    const buf = new Float32Array(N * 4);
+    renderer.readRenderTargetPixels(gpu.getCurrentRenderTarget(velVar), 0, 0, SIM, SIM, buf);
+    let held = 0, loose = 0;
+    for (let i = 0; i < N; i++) { if (buf[i * 4 + 3] >= 0.99) held++; else if (buf[i * 4 + 3] < 0) loose++; }
+    return { held, loose, total: N };
+  },
+};
+window.__v9 = window.__v7;
+
+(function tick() {
+  const dt = Math.min(clock.getDelta(), 1 / 20);
+  if (!window.__v9.frozen) step(dt);   // tests freeze the clock and step it themselves
+  render();
+  window.__v3.frames++;
+  requestAnimationFrame(tick);
+})();
+}
 </script>
 
 </body></html>
