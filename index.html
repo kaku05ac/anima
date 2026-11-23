@@ -93,6 +93,7 @@
     align-items: baseline; padding: 0.55em 0; border-top: 1px solid rgba(255, 255, 255, 0.4); }
   @supports not (grid-template-columns: subgrid) {
     .ix-row { grid-template-columns: 4.5em minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 2.2fr) 13em; column-gap: 2em; }
+    @media (max-width: 700px) { .ix-row { grid-template-columns: 2.6em minmax(0, 1fr) auto; column-gap: 1.2em; } }
   }
   .ix-row:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.4); }
   .ix-row > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -277,7 +278,7 @@
   }
   /* top-right word that rolls like an odometer: 00000 → dusza → anima; same type as the slider instruction */
   .roller { position: fixed; z-index: 5; display: flex; color: #fff; pointer-events: none;
-    font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 13px; font-weight: 300;
+    font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 12px; font-weight: 300;
     letter-spacing: 0.02em; text-transform: lowercase; line-height: 1.2; }
   .roller .cell { display: inline-block; height: 1.2em; overflow: hidden; }
   .roller .strip { display: block; }
@@ -311,7 +312,15 @@
     .feature .sub, .feature .rule, .feature .go { display: none; }
     .feature .date { margin-top: 8px; font-size: 24px; }
     .feature h2 { font-size: 19px; margin-top: 4px; }
-    .topnav { display: none; }
+    .topnav { display: grid; }
+    .topnav .site { display: none; }
+    .topnav nav { font-size: 11px; gap: 12px; margin-top: 0; }
+    .paths-menu { top: auto; bottom: calc(100% + 8px); }
+    .cat em, .cat span { display: inline; }
+    .cat span { margin-left: 6px; }
+    /* compact index: number, name, time */
+    .index { grid-template-columns: 2.6em minmax(0, 1fr) auto; column-gap: 1.2em; font-size: 11px; }
+    .ix-row > span:nth-child(3), .ix-row > span:nth-child(4) { display: none; }
     .foot { grid-template-columns: 1fr; left: 16px; right: 16px; }
     .foot .left, .foot .right { display: none; }
   }
@@ -525,6 +534,22 @@
     // slider sits just below the lowest ribbon, from the split point to the end of the ribbons
     G.nav.x = G.xf; G.nav.w = G.xe - G.xf;   // spans the straight part of the lines, where years are plotted
     G.nav.y = Math.min(H - Math.max(30, H * 0.04), TRACKS[2].y + T / 2 + 70);
+    if (narrow) {
+      // ---- phone layout: featured entry on top, the three paths across the full width, then slider, index and menu ----
+      var fe = document.getElementById('feature'), fb = fe ? fe.getBoundingClientRect().bottom : 110;
+      var menuTop = H - 16 - 16;              // menu row at the very bottom
+      var ixTop = menuTop - 18 - 44;          // compact index strip
+      var navYm = ixTop - 66;                 // slider; years sit under it, era names above it
+      var top = fb + 40, bot = navYm - 36;    // room left for the three paths
+      var Dm = Math.max(52, Math.min(130, (bot - top) / 3)), mid = (top + bot) / 2;
+      G.T = Dm * 0.4;                         // keeps each path's dots clear of the next path's label
+      G.ox = 16 + 64; G.y0 = G.yt = mid;      // room on the left for the counting word
+      G.xb = G.ox; G.xf = G.ox + Math.max(56, W * 0.18);
+      G.side = 16; G.xe = W - 16; G.m0 = G.xf + 18; G.m1 = W - 22;
+      G.nav = { x: 16, w: W - 32, y: navYm };
+      G.ixTop = ixTop; G.menuTop = menuTop;
+      TRACKS.forEach(function (t, k) { t.y = mid + (k - 1) * Dm; });
+    }
   }
 
   function drawArt() {
@@ -608,10 +633,10 @@
     brand.style.top = (sv.top + 0.612 * sv.height - brand.offsetHeight / 2 + 1) + 'px';
     // index strip across the bottom, from the title column to the right margin
     var ix = document.getElementById('index');
-    ix.style.display = G.narrow ? 'none' : '';
+    ix.style.display = '';
     ix.style.left = G.nav.x + 'px'; ix.style.width = G.nav.w + 'px';   // same start and end as the slider
     // a little higher off the bottom edge, but always below the slider instruction (which sits at nav.y + 68)
-    ix.style.top = Math.max(G.nav.y + 100, G.H - ix.offsetHeight - Math.max(68, G.H * 0.085)) + 'px';   // a little higher off the bottom edge
+    ix.style.top = (G.narrow ? G.ixTop : Math.max(G.nav.y + 100, G.H - ix.offsetHeight - Math.max(68, G.H * 0.085))) + 'px';   // a little higher off the bottom edge
     // featured block shares its left edge with the starting point
     var feat = document.getElementById('feature');
     if (feat) feat.style.left = G.narrow ? '' : (G.ox - 3) + 'px';
@@ -628,11 +653,14 @@
         if (fTop - tn.offsetHeight - gap < 28) { fTop = 28 + tn.offsetHeight + gap; feat.style.top = fTop + 'px'; }
         tn.style.top = (fTop - tn.offsetHeight - gap) + 'px';
       }
-    } else if (feat) feat.style.top = '';
+    } else if (feat) {
+      feat.style.top = '';
+      var tnm = document.querySelector('.topnav');   // phones: just the menu row, at the bottom
+      if (tnm) { tnm.style.left = '16px'; tnm.style.bottom = 'auto'; tnm.style.top = G.menuTop + 'px'; }
+    }
     // rolling word: top-right corner, right edge on the slider's right edge, top level with the title
     var rl = document.getElementById('roller'), tn2 = document.querySelector('.topnav');
-    if (G.narrow) { rl.style.right = '16px'; rl.style.top = 'calc(16px + env(safe-area-inset-top, 0px))'; }
-    else {
+    {
       // just left of the starting point, vertically centred on it
       rl.style.right = (G.W - (G.ox - (G.ns || 5) / 2 - 12)) + 'px';
       rl.style.top = (G.yt - rl.offsetHeight / 2) + 'px';
@@ -644,7 +672,7 @@
       var n = DATA.filter(function (d) { return d.path === t.id; }).length;
       var c = document.createElement('div'); c.className = 'cat';
       c.innerHTML = '<em>' + t.name + '</em><span>' + n + ' wpisów</span>';
-      if (G.narrow) { c.style.left = (G.xf + 8) + 'px'; c.style.top = (t.y - G.T / 2 - 18) + 'px'; c.style.textAlign = 'left'; }
+      if (G.narrow) { c.style.left = G.m0 + 'px'; c.style.top = (t.y - G.T * 0.75 - 14) + 'px'; c.style.textAlign = 'left'; c.style.transform = 'none'; }
       else { c.style.right = G.side + 'px'; c.style.top = t.y + 'px'; c.style.maxWidth = '220px'; }
       cats.appendChild(c);
     });
@@ -677,6 +705,7 @@
     fm.style.position = 'fixed'; fm.style.whiteSpace = 'nowrap'; fm.style.transform = 'none'; fm.style.textAlign = 'left';
     fm.style.left = G.nav.x + 'px';                 // starts exactly where the slider starts
     fm.style.top = (G.nav.y + 68) + 'px';           // just below the year
+    fm.style.display = G.narrow ? 'none' : '';
     var hint = document.getElementById('hint'); hint.style.left = 'auto'; hint.style.right = (G.W - G.nav.x - G.nav.w) + 'px'; hint.style.top = (G.nav.y - 46) + 'px';
     hint.hidden = true;   // the instruction now lives in the footer
   }
